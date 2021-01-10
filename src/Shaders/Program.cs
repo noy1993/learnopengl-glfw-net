@@ -26,6 +26,7 @@ namespace Shaders
                 Glfw.Terminate();
             }
             Glfw.MakeContextCurrent(window);
+            Glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback);
             Import(Glfw.GetProcAddress);
 
             //创建顶点着色器 并编译

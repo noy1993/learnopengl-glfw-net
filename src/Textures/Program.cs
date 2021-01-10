@@ -22,6 +22,7 @@ namespace Textures
                 Glfw.Terminate();
             }
             Glfw.MakeContextCurrent(window);
+            Glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback);
             Import(Glfw.GetProcAddress);
 
             Shaders.Shader shader = new Shaders.Shader("./texture.vert", "./texture.frag");
@@ -103,6 +104,10 @@ namespace Textures
                 Glfw.SwapBuffers(window);
                 Glfw.PollEvents();
             }
+        }
+        private static void framebuffer_size_callback(IntPtr window, int width, int height)
+        {
+            glViewport(0, 0, width, height);
         }
     }
 }

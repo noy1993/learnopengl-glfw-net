@@ -39,9 +39,9 @@ namespace HelloTriangle
                 Glfw.Terminate();
             }
             Glfw.MakeContextCurrent(window);
+            Glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback);
             Import(Glfw.GetProcAddress);
            
-
             //创建顶点着色器 并编译
             uint vertexShader = glCreateShader(GL_VERTEX_SHADER);
             glShaderSource(vertexShader, File.ReadAllText("./triangle.vert"));
@@ -114,6 +114,7 @@ namespace HelloTriangle
                 Glfw.Terminate();
             }
             Glfw.MakeContextCurrent(window);
+            Glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback);
             Import(Glfw.GetProcAddress);
 
             //创建顶点着色器 并编译
@@ -198,6 +199,10 @@ namespace HelloTriangle
             {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
+        }
+        private static void framebuffer_size_callback(IntPtr window, int width, int height)
+        {
+            glViewport(0, 0, width, height);
         }
     }
 }
