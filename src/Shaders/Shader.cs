@@ -35,15 +35,15 @@ namespace Shaders
         {
             glUseProgram(ID);
         }
-        void SetBool(string name, bool value)
+        public void SetBool(string name, bool value)
         {
             SetInt(name, Convert.ToInt32(value));
         }
-        void SetFloat(string name, float value)
+        public void SetFloat(string name, float value)
         {
             glUniform1f(glGetUniformLocation(ID, name), value);
         }
-        void SetInt(string name, int value)
+        public void SetInt(string name, int value)
         {
             glUniform1i(glGetUniformLocation(ID, name), value);
         }

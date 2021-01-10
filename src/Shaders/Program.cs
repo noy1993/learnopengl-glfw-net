@@ -65,7 +65,7 @@ namespace Shaders
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.Length, arr, GL_STATIC_DRAW);
 
             //告诉OpenGL该如何解析顶点数据
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(float), NULL);
+            glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(float), null);
             //启用顶点属性
             glEnableVertexAttribArray(0);
 
@@ -129,11 +129,11 @@ namespace Shaders
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.Length, arr, GL_STATIC_DRAW);
 
             //告诉OpenGL该如何解析顶点数据
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), NULL);
+            glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), null);
             //启用顶点属性
             glEnableVertexAttribArray(0);
 
-            glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * sizeof(float), NULL);
+            glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * sizeof(float), (void*)(3 * sizeof(float)));
             //启用顶点属性
             glEnableVertexAttribArray(1);
 
