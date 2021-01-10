@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelloTriangle", "HelloTriangle\HelloTriangle.csproj", "{F78476F6-6BB2-4CD0-B50B-98A7220040C5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shaders", "Shaders\Shaders.csproj", "{40C1B5AC-29FA-4F85-A571-A58DF8F37BE1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelloWindow", "HelloWindow\HelloWindow.csproj", "{49ECCD03-8FAA-447B-8C13-784A4261C4DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Textures", "Textures\Textures.csproj", "{151257EA-AC5A-4C5B-85A9-4EE7EA937217}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F78476F6-6BB2-4CD0-B50B-98A7220040C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F78476F6-6BB2-4CD0-B50B-98A7220040C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F78476F6-6BB2-4CD0-B50B-98A7220040C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F78476F6-6BB2-4CD0-B50B-98A7220040C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40C1B5AC-29FA-4F85-A571-A58DF8F37BE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40C1B5AC-29FA-4F85-A571-A58DF8F37BE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40C1B5AC-29FA-4F85-A571-A58DF8F37BE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40C1B5AC-29FA-4F85-A571-A58DF8F37BE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49ECCD03-8FAA-447B-8C13-784A4261C4DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49ECCD03-8FAA-447B-8C13-784A4261C4DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49ECCD03-8FAA-447B-8C13-784A4261C4DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49ECCD03-8FAA-447B-8C13-784A4261C4DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{151257EA-AC5A-4C5B-85A9-4EE7EA937217}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{151257EA-AC5A-4C5B-85A9-4EE7EA937217}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{151257EA-AC5A-4C5B-85A9-4EE7EA937217}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{151257EA-AC5A-4C5B-85A9-4EE7EA937217}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7201FC11-CA66-48B1-83B4-3EFBCE509205}
+	EndGlobalSection
+EndGlobal
