@@ -1,9 +1,9 @@
-﻿using System;
-using static OpenGL.Gl;
-using GLFW;
+﻿using GLFW;
+using System;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Numerics;
+using System.Runtime.InteropServices;
+using static OpenGL.Gl;
 
 namespace Transformations
 {
@@ -68,7 +68,7 @@ namespace Transformations
             glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * sizeof(float), (void*)(3 * sizeof(float)));
             //启用顶点属性
             glEnableVertexAttribArray(1);
-           
+
             //加载贴图
             var texture1 = glGenTexture();
             glBindTexture(GL_TEXTURE_2D, texture1);
@@ -121,10 +121,9 @@ namespace Transformations
                 glBindTexture(GL_TEXTURE_2D, texture2);
 
                 // create transformations
-                Matrix4x4 transform = Matrix4x4.Identity;
-                transform = Matrix4x4.CreateTranslation(0.5f, -0.5f, 0);
-                transform = Matrix4x4.CreateRotationZ((float)Glfw.Time)*transform;
-                
+                Matrix4x4 transform = Matrix4x4.CreateTranslation(0.5f, -0.5f, 0);
+                transform = Matrix4x4.CreateRotationZ((float)Glfw.Time) * transform;
+
                 shader.Use();
                 shader.SetMatrix4x4("transform", transform);
 
