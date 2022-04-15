@@ -1,39 +1,41 @@
-﻿using System;
+﻿
+using Silk.NET.OpenGLES;
+using System;
 using System.IO;
-using static OpenGL.Gl;
 
 namespace Shaders
 {
-    class Shader :IDisposable
+    class Shader : IDisposable
     {
-        public uint ID { get;private set; }
-        public Shader(string vertexPath,string fragmentPath)
+        static GL GL = Textures.Program.gl;
+        public uint ID { get; private set; }
+        public Shader(string vertexPath, string fragmentPath)
         {
             var vShaderCode = File.ReadAllText(vertexPath);
             var fShaderCode = File.ReadAllText(fragmentPath);
 
-            var vertex = glCreateShader(GL_VERTEX_SHADER);
-            glShaderSource(vertex, vShaderCode);
-            glCompileShader(vertex);
+            var vertex = GL.CreateShader(ShaderType.VertexShader);
+            GL.ShaderSource(vertex, vShaderCode);
+            GL.CompileShader(vertex);
             CheckCompileErrors(vertex, Type.VERTEX);
 
-            var fragment = glCreateShader(GL_FRAGMENT_SHADER);
-            glShaderSource(fragment, fShaderCode);
-            glCompileShader(fragment);
+            var fragment = GL.CreateShader(ShaderType.FragmentShader);
+            GL.ShaderSource(fragment, fShaderCode);
+            GL.CompileShader(fragment);
             CheckCompileErrors(fragment, Type.FRAGMENT);
 
-            ID = glCreateProgram();
-            glAttachShader(ID, vertex);
-            glAttachShader(ID, fragment);
-            glLinkProgram(ID);
+            ID = GL.CreateProgram();
+            GL.AttachShader(ID, vertex);
+            GL.AttachShader(ID, fragment);
+            GL.LinkProgram(ID);
             CheckCompileErrors(ID, Type.PROGRAM);
 
-            glDeleteShader(vertex);
-            glDeleteShader(fragment);
+            GL.DeleteShader(vertex);
+            GL.DeleteShader(fragment);
         }
         public void Use()
         {
-            glUseProgram(ID);
+            GL.UseProgram(ID);
         }
         public void SetBool(string name, bool value)
         {
@@ -41,11 +43,11 @@ namespace Shaders
         }
         public void SetFloat(string name, float value)
         {
-            glUniform1f(glGetUniformLocation(ID, name), value);
+            GL.Uniform1(GL.GetUniformLocation(ID, name), value);
         }
         public void SetInt(string name, int value)
         {
-            glUniform1i(glGetUniformLocation(ID, name), value);
+            GL.Uniform1(GL.GetUniformLocation(ID, name), value);
         }
 
         private unsafe void CheckCompileErrors(uint shader, Type type)
@@ -53,20 +55,20 @@ namespace Shaders
             int success;
             if (type != Type.PROGRAM)
             {
-                glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+                GL.GetShader(shader, ShaderParameterName.CompileStatus, out success);
                 if (!Convert.ToBoolean(success))
                 {
-                    var info = glGetShaderInfoLog(shader);
+                    var info = GL.GetShaderInfoLog(shader);
                     Console.WriteLine($"ERROR::SHADER_COMPILATION_ERROR of type: {type} \n{info}");
                     Console.WriteLine("---------------------------------------------------------");
                 }
             }
             else
             {
-                glGetProgramiv(shader, GL_LINK_STATUS, &success);
+                GL.GetProgram(shader, ProgramPropertyARB.LinkStatus, &success);
                 if (!Convert.ToBoolean(success))
                 {
-                    var info = glGetProgramInfoLog(shader);
+                    var info = GL.GetProgramInfoLog(shader);
                     Console.WriteLine($"ERROR::PROGRAM_LINKING_ERROR  of type: {type} \n{info}");
                     Console.WriteLine("---------------------------------------------------------");
                 }
@@ -75,7 +77,7 @@ namespace Shaders
 
         public void Dispose()
         {
-            glDeleteProgram(ID);
+            GL.DeleteProgram(ID);
         }
 
         enum Type

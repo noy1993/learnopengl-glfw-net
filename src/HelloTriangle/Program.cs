@@ -1,8 +1,8 @@
-﻿using OpenTK.Graphics.ES30;
-using OpenTK.Windowing.GraphicsLibraryFramework;
+﻿using Silk.NET.GLFW;
+using Silk.NET.OpenGLES;
 using System;
-using System.Diagnostics;
 using System.IO;
+using System.Runtime;
 using System.Runtime.InteropServices;
 
 namespace HelloTriangle
@@ -12,41 +12,42 @@ namespace HelloTriangle
         static unsafe void Main(string[] args)
         {
             TriangleProgram();
+            RecProgram();
         }
-
+        static readonly Glfw GLFW = Glfw.GetApi();
+        static GL gl;
         static unsafe void TriangleProgram()
         {
             GLFW.Init();
-
             var window = GLFW.CreateWindow(800, 600, "LearnOpenGL", null, null);
             if (window == null)
             {
-                Console.WriteLine("Failed to create GLFW window");
                 GLFW.Terminate();
+                Glfw.ThrowExceptions();
+                return;
             }
             GLFW.MakeContextCurrent(window);
             GLFW.SetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-            GL.LoadBindings(new GLFWBindingsContext());
+            gl = GL.GetApi(new GlfwContext(GLFW, window));
 
             //创建顶点着色器 并编译
-
-            int vertexShader = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vertexShader, File.ReadAllText("./triangle.vert"));
-            GL.CompileShader(vertexShader);
+            uint vertexShader = gl.CreateShader(ShaderType.VertexShader);
+            gl.ShaderSource(vertexShader, File.ReadAllText("./triangle.vert"));
+            gl.CompileShader(vertexShader);
             //创建片段着色器 并编译
-            int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(fragmentShader, File.ReadAllText("./triangle.frag"));
-            GL.CompileShader(fragmentShader);
+            uint fragmentShader = gl.CreateShader(ShaderType.FragmentShader);
+            gl.ShaderSource(fragmentShader, File.ReadAllText("./triangle.frag"));
+            gl.CompileShader(fragmentShader);
             //创建着色器程序，并将着色器挂接上去
-            int shaderProgram = GL.CreateProgram();
-            GL.AttachShader(shaderProgram, vertexShader);
-            GL.AttachShader(shaderProgram, fragmentShader);
-            GL.LinkProgram(shaderProgram);
+            uint shaderProgram = gl.CreateProgram();
+            gl.AttachShader(shaderProgram, vertexShader);
+            gl.AttachShader(shaderProgram, fragmentShader);
+            gl.LinkProgram(shaderProgram);
 
             //由于已经程序已经拷贝到了GPU 了 可以删除着色器
-            GL.DeleteShader(vertexShader);
-            GL.DeleteShader(fragmentShader);
+            gl.DeleteShader(vertexShader);
+            gl.DeleteShader(fragmentShader);
 
             var vertices = new[]
             {
@@ -55,71 +56,76 @@ namespace HelloTriangle
                 0.0f,  0.5f, 0.0f
             };
             //绑定 VAO 与 VBO
-            int VAO = GL.GenVertexArray();
-            int VBO = GL.GenBuffer();
-            GL.BindVertexArray(VAO);
+            uint VAO = gl.GenVertexArray();
+            uint VBO = gl.GenBuffer();
+            gl.BindVertexArray(VAO);
 
             //把顶点数组复制到缓冲中供OpenGL使用
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            var arr = Marshal.UnsafeAddrOfPinnedArrayElement(vertices, 0);
-            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, arr, BufferUsageHint.StaticDraw);
+            gl.BindBuffer(BufferTargetARB.ArrayBuffer, VBO);
+
+            fixed (float* v = &vertices[0])
+            {
+                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * vertices.Length), v, BufferUsageARB.StaticDraw);
+            }
 
             //告诉OpenGL该如何解析顶点数据
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+            gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
             //启用顶点属性
-            GL.EnableVertexAttribArray(0);
+            gl.EnableVertexAttribArray(0);
             while (!GLFW.WindowShouldClose(window))
             {
                 //渲染背景
-                GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-                GL.Clear(ClearBufferMask.ColorBufferBit);
+                gl.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+                gl.Clear(ClearBufferMask.ColorBufferBit);
 
                 //绘制物体
-                GL.UseProgram(shaderProgram);
-                GL.BindVertexArray(VAO);
-                GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+                gl.UseProgram(shaderProgram);
+                gl.BindVertexArray(VAO);
+                gl.DrawArrays(PrimitiveType.Triangles, 0, 3);
 
                 GLFW.SwapBuffers(window);
                 GLFW.PollEvents();
             }
 
-            GL.DeleteVertexArray(VAO);
-            GL.DeleteBuffer(VBO);
-            GL.DeleteProgram(shaderProgram);
+            gl.DeleteVertexArray(VAO);
+            gl.DeleteBuffer(VBO);
+            gl.DeleteProgram(shaderProgram);
             GLFW.Terminate();
         }
+
         static unsafe void RecProgram()
         {
             GLFW.Init();
-
             var window = GLFW.CreateWindow(800, 600, "LearnOpenGL", null, null);
             if (window == null)
             {
                 Console.WriteLine("Failed to create GLFW window");
                 GLFW.Terminate();
+                return;
             }
             GLFW.MakeContextCurrent(window);
             GLFW.SetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-            GL.LoadBindings(new GLFWBindingsContext());
+            gl = GL.GetApi(new GlfwContext(GLFW, window));
 
             //创建顶点着色器 并编译
-            int vertexShader = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vertexShader, File.ReadAllText("./triangle.vert"));
-            GL.CompileShader(vertexShader);
+            uint vertexShader = gl.CreateShader(ShaderType.VertexShader);
+            gl.ShaderSource(vertexShader, File.ReadAllText("./triangle.vert"));
+            gl.CompileShader(vertexShader);
             //创建片段着色器 并编译
-            int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(fragmentShader, File.ReadAllText("./triangle.frag"));
-            GL.CompileShader(fragmentShader);
+            uint fragmentShader = gl.CreateShader(ShaderType.FragmentShader);
+            gl.ShaderSource(fragmentShader, File.ReadAllText("./triangle.frag"));
+            gl.CompileShader(fragmentShader);
             //创建着色器程序，并将着色器挂接上去
-            int shaderProgram = GL.CreateProgram();
-            GL.AttachShader(shaderProgram, vertexShader);
-            GL.AttachShader(shaderProgram, fragmentShader);
-            GL.LinkProgram(shaderProgram);
+            uint shaderProgram = gl.CreateProgram();
+            gl.AttachShader(shaderProgram, vertexShader);
+            gl.AttachShader(shaderProgram, fragmentShader);
+            gl.LinkProgram(shaderProgram);
+
 
             //由于已经程序已经拷贝到了GPU 了 可以删除着色器
-            GL.DeleteShader(vertexShader);
-            GL.DeleteShader(fragmentShader);
+            gl.DeleteShader(vertexShader);
+            gl.DeleteShader(fragmentShader);
 
             var vertices = new[]
             {
@@ -135,62 +141,56 @@ namespace HelloTriangle
             };
 
             //绑定 VAO 与 VBO
-            int VAO = GL.GenVertexArray();
-            int VBO = GL.GenBuffer();
-            int EBO = GL.GenBuffer();
+            uint VAO = gl.GenVertexArray();
+            uint VBO = gl.GenBuffer();
+            uint EBO = gl.GenBuffer();
 
-            GL.BindVertexArray(VAO);
+            gl.BindVertexArray(VAO);
 
             //把顶点数组复制到缓冲中供OpenGL使用
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            var arr = Marshal.UnsafeAddrOfPinnedArrayElement(vertices, 0);
-            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, arr, BufferUsageHint.StaticDraw);
+            gl.BindBuffer(BufferTargetARB.ArrayBuffer, VBO);
 
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
-            var arr2 = Marshal.UnsafeAddrOfPinnedArrayElement(indices, 0);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, sizeof(uint) * indices.Length, arr2, BufferUsageHint.StaticDraw);
+            fixed (float* v = &vertices[0])
+            {
+                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * vertices.Length), v, BufferUsageARB.StaticDraw);
+            }
+
+            gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, EBO);
+            fixed (uint* i = &indices[0])
+            {
+                gl.BufferData(BufferTargetARB.ElementArrayBuffer, (nuint)(sizeof(uint) * indices.Length), i, BufferUsageARB.StaticDraw);
+            }
 
             //告诉OpenGL该如何解析顶点数据
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+            gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
             //启用顶点属性
-            GL.EnableVertexAttribArray(0);
+            gl.EnableVertexAttribArray(0);
+            gl.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             while (!GLFW.WindowShouldClose(window))
             {
-                processInput(window);
                 //渲染背景
-                GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-                GL.Clear(ClearBufferMask.ColorBufferBit);
+
+                gl.Clear(ClearBufferMask.ColorBufferBit);
 
                 //绘制物体
-                GL.UseProgram(shaderProgram);
-                GL.BindVertexArray(VAO);
-                GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, IntPtr.Zero);
+                gl.BindVertexArray(VAO);
+                gl.UseProgram(shaderProgram);
+
+                gl.DrawElements(PrimitiveType.Triangles, (uint)indices.Length, DrawElementsType.UnsignedInt, null);
 
                 GLFW.SwapBuffers(window);
                 GLFW.PollEvents();
             }
 
-            GL.DeleteVertexArray(VAO);
-            GL.DeleteBuffer(VBO);
-            GL.DeleteProgram(shaderProgram);
+            gl.DeleteVertexArray(VAO);
+            gl.DeleteBuffer(VBO);
+            gl.DeleteProgram(shaderProgram);
             GLFW.Terminate();
         }
-        private unsafe static void processInput(Window* window)
-        {
-            //if (GLFW.GetKey(window, Keys.G) == InputAction.Press)
-            //{
-            //    GL.mo
-            //    GL.PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            //}
-            //if (GLFW.GetKey(window, Keys.B) == InputAction.Press)
-            //{
-            //    GL.PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            //}
-        }
 
-        private unsafe static void framebuffer_size_callback(Window* window, int width, int height)
+        private unsafe static void framebuffer_size_callback(WindowHandle* window, int width, int height)
         {
-            GL.Viewport(0, 0, width, height);
+            gl.Viewport(0, 0, (uint)width, (uint)height);
         }
     }
 }

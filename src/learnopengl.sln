@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30804.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelloTriangle", "HelloTriangle\HelloTriangle.csproj", "{F78476F6-6BB2-4CD0-B50B-98A7220040C5}"
 EndProject
@@ -10,8 +10,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelloWindow", "HelloWindow\HelloWindow.csproj", "{49ECCD03-8FAA-447B-8C13-784A4261C4DC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Textures", "Textures\Textures.csproj", "{151257EA-AC5A-4C5B-85A9-4EE7EA937217}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transformations", "Transformations\Transformations.csproj", "{84CDE082-F757-4B1C-B3F0-A02555D376E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +33,6 @@ Global
 		{151257EA-AC5A-4C5B-85A9-4EE7EA937217}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{151257EA-AC5A-4C5B-85A9-4EE7EA937217}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{151257EA-AC5A-4C5B-85A9-4EE7EA937217}.Release|Any CPU.Build.0 = Release|Any CPU
-		{84CDE082-F757-4B1C-B3F0-A02555D376E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{84CDE082-F757-4B1C-B3F0-A02555D376E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{84CDE082-F757-4B1C-B3F0-A02555D376E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{84CDE082-F757-4B1C-B3F0-A02555D376E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

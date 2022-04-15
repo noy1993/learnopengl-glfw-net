@@ -1,12 +1,15 @@
-﻿using System;
+﻿using Silk.NET.GLFW;
+using Silk.NET.OpenGLES;
+using System;
 using System.IO;
-using OpenTK.Graphics.ES30;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace HelloTriangle
 {
     class Program
     {
+        static readonly Glfw GLFW = Glfw.GetApi();
+        static GL gl;
+
         unsafe static void Main(string[] args)
         {
             GLFW.Init();
@@ -21,12 +24,13 @@ namespace HelloTriangle
             GLFW.SetFramebufferSizeCallback(window, framebuffer_size_callback);
             var dd = GLFW.GetProcAddress;
 
-            GL.LoadBindings(new GLFWBindingsContext());
+            gl = GL.GetApi(new GlfwContext(GLFW, window));
+
             while (!GLFW.WindowShouldClose(window))
             {
                 processInput(window);
-                GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-                GL.Clear(ClearBufferMask.ColorBufferBit);
+                gl.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+                gl.Clear(ClearBufferMask.ColorBufferBit);
 
                 GLFW.SwapBuffers(window);
                 GLFW.PollEvents();
@@ -34,14 +38,14 @@ namespace HelloTriangle
             GLFW.Terminate();
         }
 
-        private static unsafe void framebuffer_size_callback(Window* window, int width, int height)
+        private static unsafe void framebuffer_size_callback(WindowHandle* window, int width, int height)
         {
-            GL.Viewport(0, 0, width, height);
+            gl.Viewport(0, 0, (uint)width, (uint)height);
         }
 
-        private unsafe static void processInput(Window* window)
+        private unsafe static void processInput(WindowHandle* window)
         {
-            if (GLFW.GetKey(window, Keys.Escape) == InputAction.Press)
+            if (GLFW.GetKey(window, Keys.Escape) == (int)InputAction.Press)
             {
                 GLFW.SetWindowShouldClose(window, true);
             }

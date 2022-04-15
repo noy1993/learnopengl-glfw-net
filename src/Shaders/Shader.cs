@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.ES30;
+﻿
+using Silk.NET.OpenGLES;
 using System;
 using System.IO;
 
@@ -6,7 +7,8 @@ namespace Shaders
 {
     class Shader : IDisposable
     {
-        public int ID { get; private set; }
+        static GL GL = Program.gl;
+        public uint ID { get; private set; }
         public Shader(string vertexPath, string fragmentPath)
         {
             var vShaderCode = File.ReadAllText(vertexPath);
@@ -48,12 +50,12 @@ namespace Shaders
             GL.Uniform1(GL.GetUniformLocation(ID, name), value);
         }
 
-        private unsafe void CheckCompileErrors(int shader, Type type)
+        private unsafe void CheckCompileErrors(uint shader, Type type)
         {
             int success;
             if (type != Type.PROGRAM)
             {
-                GL.GetShader(shader, ShaderParameter.CompileStatus, out success);
+                GL.GetShader(shader, ShaderParameterName.CompileStatus, out success);
                 if (!Convert.ToBoolean(success))
                 {
                     var info = GL.GetShaderInfoLog(shader);
@@ -63,7 +65,7 @@ namespace Shaders
             }
             else
             {
-                GL.GetProgram(shader, GetProgramParameterName.LinkStatus, &success);
+                GL.GetProgram(shader, ProgramPropertyARB.LinkStatus, &success);
                 if (!Convert.ToBoolean(success))
                 {
                     var info = GL.GetProgramInfoLog(shader);
@@ -75,7 +77,7 @@ namespace Shaders
 
         public void Dispose()
         {
-            GL.DeleteProgram(ID);
+            GL?.DeleteProgram(ID);
         }
 
         enum Type

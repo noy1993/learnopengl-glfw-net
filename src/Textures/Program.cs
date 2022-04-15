@@ -1,29 +1,31 @@
-﻿using GLFW;
+﻿using Silk.NET.GLFW;
+using Silk.NET.OpenGLES;
+using SkiaSharp;
 using System;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
-using static OpenGL.Gl;
 
 namespace Textures
 {
     class Program
     {
+        static readonly Glfw GLFW = Glfw.GetApi();
+        internal static GL gl;
         static unsafe void P1()
         {
-            Glfw.Init();
-            Glfw.WindowHint(Hint.ContextVersionMajor, 3);
-            Glfw.WindowHint(Hint.ContextVersionMinor, 3);
-            Glfw.WindowHint(Hint.OpenglProfile, Profile.Core);
+            GLFW.Init();
 
-            var window = Glfw.CreateWindow(800, 600, "LearnOpenGL", Monitor.None, Window.None);
-            if (window == Window.None)
+            var window = GLFW.CreateWindow(800, 600, "LearnOpenGL", null, null);
+            if (window == null)
             {
-                Console.WriteLine("Failed to create GLFW window");
-                Glfw.Terminate();
+                Console.WriteLine("Failed to create gl.FW window");
+                GLFW.Terminate();
             }
-            Glfw.MakeContextCurrent(window);
-            Glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback);
-            Import(Glfw.GetProcAddress);
+            GLFW.MakeContextCurrent(window);
+            GLFW.SetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+            gl = GL.GetApi(new GlfwContext(GLFW, window));
 
             Shaders.Shader shader = new Shaders.Shader("./texture.vert", "./texture.frag");
             var vertices = new[]
@@ -40,93 +42,94 @@ namespace Textures
             };
 
             //绑定 VAO 与 VBO
-            uint VAO = glGenVertexArray();
-            uint VBO = glGenBuffer();
-            uint EBO = glGenBuffer();
+            uint VAO = gl.GenVertexArray();
+            uint VBO = gl.GenBuffer();
+            uint EBO = gl.GenBuffer();
 
-            glBindVertexArray(VAO);
+            gl.BindVertexArray(VAO);
 
             //把顶点数组复制到缓冲中供OpenGL使用
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            var arr = Marshal.UnsafeAddrOfPinnedArrayElement(vertices, 0);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.Length, arr, GL_STATIC_DRAW);
+            gl.BindBuffer(BufferTargetARB.ArrayBuffer, VBO);
+            fixed (float* v = &vertices[0])
+            {
+                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * vertices.Length), v, BufferUsageARB.StaticDraw);
+            }
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-            var arr2 = Marshal.UnsafeAddrOfPinnedArrayElement(indices, 0);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * indices.Length, arr2, GL_STATIC_DRAW);
+            gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, EBO);
+            fixed (uint* i = &indices[0])
+            {
+                gl.BufferData(BufferTargetARB.ElementArrayBuffer, (nuint)(sizeof(uint) * indices.Length), i, BufferUsageARB.StaticDraw);
+            }
 
             //告诉OpenGL该如何解析顶点数据
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, 8 * sizeof(float), NULL);
+            gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), null);
             //启用顶点属性
-            glEnableVertexAttribArray(0);
+            gl.EnableVertexAttribArray(0);
             //告诉OpenGL该如何解析顶点数据
-            glVertexAttribPointer(1, 3, GL_FLOAT, false, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+            gl.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), (void*)(3 * sizeof(float)));
             //启用顶点属性
-            glEnableVertexAttribArray(1);
+            gl.EnableVertexAttribArray(1);
             //告诉OpenGL该如何解析顶点数据
-            glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+            gl.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), (void*)(6 * sizeof(float)));
             //启用顶点属性
-            glEnableVertexAttribArray(2);
+            gl.EnableVertexAttribArray(2);
 
             //加载贴图
-            var texture = glGenTexture();
-            glBindTexture(GL_TEXTURE_2D, texture);
+            var texture = gl.GenTexture();
+            gl.BindTexture(TextureTarget.Texture2D, texture);
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);   // set texture wrapping to GL_REPEAT (default wrapping method)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            // set texture filtering parameters
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.Repeat); // set texture wrapping to gl._REPEAT (default wrapping method)
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.Repeat);
+            //// set texture filtering parameters
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
 
-            var data = new Bitmap("./container.jpg");
-            var map = data.LockBits(new Rectangle(0, 0, data.Width, data.Height), System.Drawing.Imaging.ImageLockMode.ReadWrite, data.PixelFormat);
+            using SKCodec data = SKCodec.Create("./container.jpg", out var r);
+            data.GetPixels(out var pixels);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.Width, data.Height, 0, GL_BGR, GL_UNSIGNED_BYTE, map.Scan0);
+            fixed (byte* p = pixels)
+            {
+                gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint)data.Info.Width, (uint)data.Info.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, p);
+            }
 
-            glGenerateMipmap(GL_TEXTURE_2D);
-            data.UnlockBits(map);
-            data.Dispose();
-
+            gl.GenerateMipmap(TextureTarget.Texture2D);
             shader.Use();
-
-            while (!Glfw.WindowShouldClose(window))
+            while (!GLFW.WindowShouldClose(window))
             {
                 //渲染背景
-                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
+                gl.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+                gl.Clear(ClearBufferMask.ColorBufferBit);
 
                 //绘制物体
                 //glBindTexture(GL_TEXTURE_2D, texture);
                 //shader.Use();
                 //glBindVertexArray(VAO);
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null);
+                gl.DrawElements(PrimitiveType.Triangles, (uint)indices.Length, DrawElementsType.UnsignedInt, null);
 
-                Glfw.SwapBuffers(window);
-                Glfw.PollEvents();
+                GLFW.SwapBuffers(window);
+                GLFW.PollEvents();
             }
 
-            glDeleteVertexArray(VAO);
-            glDeleteBuffer(VBO);
-            glDeleteBuffer(EBO);
-            Glfw.Terminate();
+            gl.DeleteVertexArray(VAO);
+            gl.DeleteBuffer(VBO);
+            gl.DeleteBuffer(EBO);
+            GLFW.Terminate();
         }
 
         static unsafe void P2()
         {
-            Glfw.Init();
-            Glfw.WindowHint(Hint.ContextVersionMajor, 3);
-            Glfw.WindowHint(Hint.ContextVersionMinor, 3);
-            Glfw.WindowHint(Hint.OpenglProfile, Profile.Core);
+            GLFW.Init();
 
-            var window = Glfw.CreateWindow(800, 600, "LearnOpenGL", Monitor.None, Window.None);
-            if (window == Window.None)
+            var window = GLFW.CreateWindow(800, 600, "LearnOpenGL", null, null);
+            if (window == null)
             {
-                Console.WriteLine("Failed to create GLFW window");
-                Glfw.Terminate();
+                Console.WriteLine("Failed to create gl.FW window");
+                GLFW.Terminate();
             }
-            Glfw.MakeContextCurrent(window);
-            Glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback);
-            Import(Glfw.GetProcAddress);
+            GLFW.MakeContextCurrent(window);
+            GLFW.SetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+            gl = GL.GetApi(new GlfwContext(GLFW, window));
 
             Shaders.Shader shader = new Shaders.Shader("./texture.vert", "./texture2.frag");
             var vertices = new[]
@@ -143,106 +146,110 @@ namespace Textures
             };
 
             //绑定 VAO 与 VBO
-            uint VAO = glGenVertexArray();
-            uint VBO = glGenBuffer();
-            uint EBO = glGenBuffer();
+            uint VAO = gl.GenVertexArray();
+            uint VBO = gl.GenBuffer();
+            uint EBO = gl.GenBuffer();
 
-            glBindVertexArray(VAO);
+            gl.BindVertexArray(VAO);
 
             //把顶点数组复制到缓冲中供OpenGL使用
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            var arr = Marshal.UnsafeAddrOfPinnedArrayElement(vertices, 0);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.Length, arr, GL_STATIC_DRAW);
+            gl.BindBuffer(BufferTargetARB.ArrayBuffer, VBO);
+            fixed (float* v = &vertices[0])
+            {
+                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * vertices.Length), v, BufferUsageARB.StaticDraw);
+            }
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, EBO);
             var arr2 = Marshal.UnsafeAddrOfPinnedArrayElement(indices, 0);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * indices.Length, arr2, GL_STATIC_DRAW);
+            fixed (uint* i = &indices[0])
+            {
+                gl.BufferData(BufferTargetARB.ElementArrayBuffer, (nuint)(sizeof(uint) * indices.Length), i, BufferUsageARB.StaticDraw);
+            }
 
             //告诉OpenGL该如何解析顶点数据
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, 8 * sizeof(float), NULL);
+            gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), null);
             //启用顶点属性
-            glEnableVertexAttribArray(0);
+            gl.EnableVertexAttribArray(0);
             //告诉OpenGL该如何解析顶点数据
-            glVertexAttribPointer(1, 3, GL_FLOAT, false, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+            gl.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), (void*)(3 * sizeof(float)));
             //启用顶点属性
-            glEnableVertexAttribArray(1);
+            gl.EnableVertexAttribArray(1);
             //告诉OpenGL该如何解析顶点数据
-            glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+            gl.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), (void*)(6 * sizeof(float)));
             //启用顶点属性
-            glEnableVertexAttribArray(2);
+            gl.EnableVertexAttribArray(2);
 
             //加载贴图
-            var texture1 = glGenTexture();
-            glBindTexture(GL_TEXTURE_2D, texture1);
+            var texture1 = gl.GenTexture();
+            gl.BindTexture(TextureTarget.Texture2D, texture1);
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);   // set texture wrapping to GL_REPEAT (default wrapping method)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.Repeat);   // set texture wrapping to gl._REPEAT (default wrapping method)
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.Repeat);
             // set texture filtering parameters
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
 
-            var data = new Bitmap("./container.jpg");
-            var map = data.LockBits(new Rectangle(0, 0, data.Width, data.Height), System.Drawing.Imaging.ImageLockMode.ReadWrite, data.PixelFormat);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.Width, data.Height, 0, GL_BGR, GL_UNSIGNED_BYTE, map.Scan0);
-            glGenerateMipmap(GL_TEXTURE_2D);
+            using var data = SKBitmap.Decode("./container.jpg");
 
-            data.UnlockBits(map);
-            data.Dispose();
+            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint)data.Width, (uint)data.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, data.GetPixels().ToPointer());
+            gl.GenerateMipmap(TextureTarget.Texture2D);
 
-            var texture2 = glGenTexture();
-            glBindTexture(GL_TEXTURE_2D, texture2);
+            var texture2 = gl.GenTexture();
+            gl.BindTexture(TextureTarget.Texture2D, texture2);
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);   // set texture wrapping to GL_REPEAT (default wrapping method)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.Repeat);   // set texture wrapping to gl._REPEAT (default wrapping method)
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.Repeat);
             // set texture filtering parameters
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
 
-            var data2 = new Bitmap("./awesomeface.png");
-            data2.RotateFlip(RotateFlipType.RotateNoneFlipY);
-            var map2 = data2.LockBits(new Rectangle(0, 0, data2.Width, data2.Height), System.Drawing.Imaging.ImageLockMode.ReadWrite, data2.PixelFormat);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data2.Width, data2.Height, 0, GL_BGRA, GL_UNSIGNED_BYTE, map2.Scan0);
-            glGenerateMipmap(GL_TEXTURE_2D);
+            using var bitmap = SKBitmap.Decode("./awesomeface.png");
+            using (var canvas = new SKCanvas(bitmap))
+            {
+                canvas.RotateDegrees(180, bitmap.Width / 2, bitmap.Height / 2);
+                canvas.DrawBitmap(bitmap.Copy(), 0, 0);
+            }
 
-            data2.UnlockBits(map2);
-            data2.Dispose();
+            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint)bitmap.Width, (uint)bitmap.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, bitmap.GetPixels().ToPointer());
+            gl.GenerateMipmap(TextureTarget.Texture2D);
 
             shader.Use();
             shader.SetInt("texture1", 0);
             shader.SetInt("texture2", 1);
-            while (!Glfw.WindowShouldClose(window))
+            while (!GLFW.WindowShouldClose(window))
             {
                 //渲染背景
-                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
+                gl.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+                gl.Clear(ClearBufferMask.ColorBufferBit);
 
                 //绘制物体
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, texture1);
-                glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, texture2);
+                gl.ActiveTexture(TextureUnit.Texture0);
+                gl.BindTexture(TextureTarget.Texture2D, texture1);
+                gl.ActiveTexture(TextureUnit.Texture1);
+                gl.BindTexture(TextureTarget.Texture2D, texture2);
 
                 //shader.Use();
                 //glBindVertexArray(VAO);
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+                gl.DrawElements(PrimitiveType.Triangles, (uint)indices.Length, DrawElementsType.UnsignedInt, null);
 
-                Glfw.SwapBuffers(window);
-                Glfw.PollEvents();
+                GLFW.SwapBuffers(window);
+                GLFW.PollEvents();
             }
 
-            glDeleteVertexArray(VAO);
-            glDeleteBuffer(VBO);
-            glDeleteBuffer(EBO);
-            Glfw.Terminate();
+            gl.DeleteVertexArray(VAO);
+            gl.DeleteBuffer(VBO);
+            gl.DeleteBuffer(EBO);
+            GLFW.Terminate();
         }
+
         static unsafe void Main(string[] args)
         {
-            P2();
             //P1();
+            P2();
         }
-        private static void framebuffer_size_callback(IntPtr window, int width, int height)
+        private unsafe static void framebuffer_size_callback(WindowHandle* window, int width, int height)
         {
-            glViewport(0, 0, width, height);
+            gl.Viewport(0, 0, (uint)width, (uint)height);
         }
     }
 }
