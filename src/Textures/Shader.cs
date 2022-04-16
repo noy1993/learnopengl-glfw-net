@@ -7,7 +7,7 @@ namespace Shaders
 {
     class Shader : IDisposable
     {
-        static GL GL = Textures.Program.gl;
+        static readonly GL GL = Textures.Program.gl;
         public uint ID { get; private set; }
         public Shader(string vertexPath, string fragmentPath)
         {
