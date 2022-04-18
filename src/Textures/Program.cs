@@ -76,21 +76,18 @@ namespace Textures
 
             //加载贴图
             var texture = gl.GenTexture();
+            gl.ActiveTexture(TextureUnit.Texture0);//由于0号单元 默认是激活的，所以可以不写
             gl.BindTexture(TextureTarget.Texture2D, texture);
 
             gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.Repeat); // set texture wrapping to gl._REPEAT (default wrapping method)
             gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.Repeat);
-            //// set texture filtering parameters
+
+            // set texture filtering parameters
             gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
             gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
 
-            using SKCodec data = SKCodec.Create("./container.jpg", out var r);
-            data.GetPixels(out var pixels);
-
-            fixed (byte* p = pixels)
-            {
-                gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint)data.Info.Width, (uint)data.Info.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, p);
-            }
+            var bitmap = SKBitmap.Decode("./container.jpg");
+            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint)bitmap.Width, (uint)bitmap.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, bitmap.GetPixelSpan());
 
             gl.GenerateMipmap(TextureTarget.Texture2D);
             shader.Use();
@@ -101,9 +98,7 @@ namespace Textures
                 gl.Clear(ClearBufferMask.ColorBufferBit);
 
                 //绘制物体
-                //glBindTexture(GL_TEXTURE_2D, texture);
-                //shader.Use();
-                //glBindVertexArray(VAO);
+                 
                 gl.DrawElements(PrimitiveType.Triangles, (uint)indices.Length, DrawElementsType.UnsignedInt, null);
 
                 GLFW.SwapBuffers(window);
@@ -191,7 +186,7 @@ namespace Textures
 
             using var data = SKBitmap.Decode("./container.jpg");
 
-            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint)data.Width, (uint)data.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, data.GetPixels().ToPointer());
+            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint)data.Width, (uint)data.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, data.GetPixelSpan());
             gl.GenerateMipmap(TextureTarget.Texture2D);
 
             var texture2 = gl.GenTexture();

@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelloWindow", "HelloWindow\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Textures", "Textures\Textures.csproj", "{151257EA-AC5A-4C5B-85A9-4EE7EA937217}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transformations", "Transformations\Transformations.csproj", "{4F649435-C8AC-46B5-81C0-5115DFB730C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{151257EA-AC5A-4C5B-85A9-4EE7EA937217}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{151257EA-AC5A-4C5B-85A9-4EE7EA937217}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{151257EA-AC5A-4C5B-85A9-4EE7EA937217}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F649435-C8AC-46B5-81C0-5115DFB730C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F649435-C8AC-46B5-81C0-5115DFB730C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F649435-C8AC-46B5-81C0-5115DFB730C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F649435-C8AC-46B5-81C0-5115DFB730C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

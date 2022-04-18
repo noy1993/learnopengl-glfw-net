@@ -166,6 +166,10 @@ namespace HelloTriangle
             //启用顶点属性
             gl.EnableVertexAttribArray(0);
             gl.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
+            gl.BindVertexArray(VAO);
+            gl.UseProgram(shaderProgram);
+
             while (!GLFW.WindowShouldClose(window))
             {
                 //渲染背景
@@ -173,9 +177,6 @@ namespace HelloTriangle
                 gl.Clear(ClearBufferMask.ColorBufferBit);
 
                 //绘制物体
-                gl.BindVertexArray(VAO);
-                gl.UseProgram(shaderProgram);
-
                 gl.DrawElements(PrimitiveType.Triangles, (uint)indices.Length, DrawElementsType.UnsignedInt, null);
 
                 GLFW.SwapBuffers(window);
@@ -188,8 +189,13 @@ namespace HelloTriangle
             GLFW.Terminate();
         }
 
-        private unsafe static void framebuffer_size_callback(WindowHandle* window, int width, int height)
+        unsafe void Drawing()
         {
+            gl.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, null);
+        }
+
+        private unsafe static void framebuffer_size_callback(WindowHandle* window, int width, int height)
+        { 
             gl.Viewport(0, 0, (uint)width, (uint)height);
         }
     }

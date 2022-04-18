@@ -9,7 +9,7 @@ namespace Shaders
     {
         static readonly GL GL = Textures.Program.gl;
         public uint ID { get; private set; }
-        public Shader(string vertexPath, string fragmentPath)
+        public Shader(string vertexPath, string fragmentPath) 
         {
             var vShaderCode = File.ReadAllText(vertexPath);
             var fShaderCode = File.ReadAllText(fragmentPath);

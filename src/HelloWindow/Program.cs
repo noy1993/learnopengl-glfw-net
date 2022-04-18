@@ -2,6 +2,7 @@
 using Silk.NET.OpenGLES;
 using System;
 using System.IO;
+using System.Threading;
 
 namespace HelloTriangle
 {
@@ -34,13 +35,15 @@ namespace HelloTriangle
 
                 GLFW.SwapBuffers(window);
                 GLFW.PollEvents();
+                Thread.Sleep(10);
             }
             GLFW.Terminate();
         }
 
         private static unsafe void framebuffer_size_callback(WindowHandle* window, int width, int height)
         {
-            gl.Viewport(0, 0, (uint)width, (uint)height);
+            gl.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            GLFW.SwapBuffers(window);
         }
 
         private unsafe static void processInput(WindowHandle* window)
