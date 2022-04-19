@@ -15,9 +15,9 @@ namespace Transformations
 
         static void Main(string[] args)
         {
-            P1();
+            Project();
         }
-        static unsafe void P1()
+        static unsafe void Project()
         {
             GLFW.Init();
 
@@ -31,7 +31,8 @@ namespace Transformations
             GLFW.SetFramebufferSizeCallback(window, framebuffer_size_callback);
             gl = GL.GetApi(new GlfwContext(GLFW, window));
 
-            Shaders.Shader shader = new Shaders.Shader("./texture.vert", "./texture.frag");
+            OpenGL.Extension.Shader.sgl = gl;
+            OpenGL.Extension.Shader shader = new OpenGL.Extension.Shader("./texture.vert", "./texture.frag");
             var vertices = new[]
             {
                 // positions        // texture coords

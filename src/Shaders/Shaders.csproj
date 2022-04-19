@@ -15,6 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Shader\OpenGL.Extension.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="triangle2.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

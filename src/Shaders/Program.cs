@@ -12,7 +12,7 @@ namespace Shaders
         internal static GL gl;
         static unsafe void Main(string[] args)
         {
-            P1();
+            //P1();
             P2();
         }
         static unsafe void P1()
@@ -113,7 +113,8 @@ namespace Shaders
 
             gl = GL.GetApi(new GlfwContext(GLFW, window));
 
-            using var shader = new Shader("./triangle2.vert", "./triangle2.frag");
+            OpenGL.Extension.Shader.sgl = gl;
+            using var shader = new OpenGL.Extension.Shader("./triangle2.vert", "./triangle2.frag");
             var vertices = new[]
             {
                 // 位置              // 颜色

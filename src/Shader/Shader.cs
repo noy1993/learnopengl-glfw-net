@@ -1,41 +1,40 @@
-﻿using Silk.NET.OpenGLES;
-using System;
-using System.IO;
+﻿
+using Silk.NET.OpenGLES;
 using System.Numerics;
 
-namespace Shaders
+namespace OpenGL.Extension
 {
-    class Shader : IDisposable
+    public class Shader : IDisposable
     {
-        static readonly GL GL = Transformations.Program.gl;
+        public static GL sgl { get; set; }
         public uint ID { get; private set; }
         public Shader(string vertexPath, string fragmentPath)
         {
             var vShaderCode = File.ReadAllText(vertexPath);
             var fShaderCode = File.ReadAllText(fragmentPath);
 
-            var vertex = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vertex, vShaderCode);
-            GL.CompileShader(vertex);
+            var vertex = sgl.CreateShader(ShaderType.VertexShader);
+            sgl.ShaderSource(vertex, vShaderCode);
+            sgl.CompileShader(vertex);
             CheckCompileErrors(vertex, Type.VERTEX);
 
-            var fragment = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(fragment, fShaderCode);
-            GL.CompileShader(fragment);
+            var fragment = sgl.CreateShader(ShaderType.FragmentShader);
+            sgl.ShaderSource(fragment, fShaderCode);
+            sgl.CompileShader(fragment);
             CheckCompileErrors(fragment, Type.FRAGMENT);
 
-            ID = GL.CreateProgram();
-            GL.AttachShader(ID, vertex);
-            GL.AttachShader(ID, fragment);
-            GL.LinkProgram(ID);
+            ID = sgl.CreateProgram();
+            sgl.AttachShader(ID, vertex);
+            sgl.AttachShader(ID, fragment);
+            sgl.LinkProgram(ID);
             CheckCompileErrors(ID, Type.PROGRAM);
 
-            GL.DeleteShader(vertex);
-            GL.DeleteShader(fragment);
+            sgl.DeleteShader(vertex);
+            sgl.DeleteShader(fragment);
         }
         public void Use()
         {
-            GL.UseProgram(ID);
+            sgl.UseProgram(ID);
         }
         public void SetBool(string name, bool value)
         {
@@ -43,20 +42,17 @@ namespace Shaders
         }
         public void SetFloat(string name, float value)
         {
-            GL.Uniform1(GL.GetUniformLocation(ID, name), value);
-        }
-        public void SetUInt(string name, uint value)
-        {
-            GL.Uniform1(GL.GetUniformLocation(ID, name), value);
+            sgl.Uniform1(sgl.GetUniformLocation(ID, name), value);
         }
         public void SetInt(string name, int value)
         {
-            GL.Uniform1(GL.GetUniformLocation(ID, name), value);
+            sgl.Uniform1(sgl.GetUniformLocation(ID, name), value);
         }
 
         public unsafe void SetMatrix4x4(string name, Matrix4x4 value)
         {
-            GL.UniformMatrix4(GL.GetUniformLocation(ID, name), 1, false, (float*)&value);
+            var index = sgl.GetUniformLocation(ID, name);
+            sgl.UniformMatrix4(index, 1, false, (float*)&value);
         }
 
         private unsafe void CheckCompileErrors(uint shader, Type type)
@@ -64,20 +60,20 @@ namespace Shaders
             int success;
             if (type != Type.PROGRAM)
             {
-                GL.GetShader(shader, ShaderParameterName.CompileStatus, out success);
+                sgl.GetShader(shader, ShaderParameterName.CompileStatus, out success);
                 if (!Convert.ToBoolean(success))
                 {
-                    var info = GL.GetShaderInfoLog(shader);
+                    var info = sgl.GetShaderInfoLog(shader);
                     Console.WriteLine($"ERROR::SHADER_COMPILATION_ERROR of type: {type} \n{info}");
                     Console.WriteLine("---------------------------------------------------------");
                 }
             }
             else
             {
-                GL.GetProgram(shader, ProgramPropertyARB.LinkStatus, &success);
+                sgl.GetProgram(shader, ProgramPropertyARB.LinkStatus, &success);
                 if (!Convert.ToBoolean(success))
                 {
-                    var info = GL.GetProgramInfoLog(shader);
+                    var info = sgl.GetProgramInfoLog(shader);
                     Console.WriteLine($"ERROR::PROGRAM_LINKING_ERROR  of type: {type} \n{info}");
                     Console.WriteLine("---------------------------------------------------------");
                 }
@@ -86,7 +82,7 @@ namespace Shaders
 
         public void Dispose()
         {
-            GL.DeleteProgram(ID);
+            sgl.DeleteProgram(ID);
         }
 
         enum Type

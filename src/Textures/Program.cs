@@ -26,8 +26,8 @@ namespace Textures
             GLFW.SetFramebufferSizeCallback(window, framebuffer_size_callback);
 
             gl = GL.GetApi(new GlfwContext(GLFW, window));
-
-            Shaders.Shader shader = new Shaders.Shader("./texture.vert", "./texture.frag");
+            OpenGL.Extension.Shader.sgl = gl;
+            OpenGL.Extension.Shader shader = new OpenGL.Extension.Shader("./texture.vert", "./texture.frag");
             var vertices = new[]
             {
                 // positions          // colors           // texture coords
@@ -126,7 +126,8 @@ namespace Textures
 
             gl = GL.GetApi(new GlfwContext(GLFW, window));
 
-            Shaders.Shader shader = new Shaders.Shader("./texture.vert", "./texture2.frag");
+            OpenGL.Extension.Shader.sgl = gl;
+            OpenGL.Extension.Shader shader = new OpenGL.Extension.Shader("./texture.vert", "./texture2.frag");
             var vertices = new[]
             {
                 // positions          // colors           // texture coords

@@ -16,6 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Shader\OpenGL.Extension.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="awesomeface.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
