@@ -12,7 +12,7 @@ namespace Camera
 
         public static void Main()
         {
-            DrawCameraView();
+            DrawCameraMoveView();
         }
 
         public unsafe static void DrawCameraView()
@@ -161,7 +161,7 @@ namespace Camera
                     var time = (float)GLFW.GetTime();
 
                     var angle = MathF.PI / 4f;//* (i + 1);
-                    var modelR = Matrix4x4.CreateRotationY(angle*time, Vector3.Zero) * Matrix4x4.CreateRotationX(angle*time, Vector3.Zero);
+                    var modelR = Matrix4x4.CreateRotationY(angle * time, Vector3.Zero) * Matrix4x4.CreateRotationX(angle * time, Vector3.Zero);
                     model = modelR * model;
                     shader.SetMatrix4x4("model", model);
 
@@ -179,7 +179,7 @@ namespace Camera
         }
 
 
-        public unsafe static void DrawCameraMove()
+        public unsafe static void DrawCameraMoveView()
         {
             GLFW.Init();
 
@@ -191,7 +191,11 @@ namespace Camera
             }
 
             GLFW.MakeContextCurrent(window);
+            //GLFW.SetInputMode(window, CursorStateAttribute.Cursor,CursorModeValue.CursorDisabled);
             GLFW.SetFramebufferSizeCallback(window, framebuffer_size_callback);
+            GLFW.SetCursorPosCallback(window, cursor_pos_callback);
+            GLFW.SetScrollCallback(window, scroll_callback);
+
             gl = GL.GetApi(new GlfwContext(GLFW, window));
 
             OpenGL.Extension.Shader.sgl = gl;
@@ -308,32 +312,30 @@ namespace Camera
             shader.SetInt("texture1", 0);
             shader.SetInt("texture2", 1);
 
-            //静态变换矩阵
-            var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 4f, 800 / 600, 0.1f, 100f);
-            shader.SetMatrix4x4("projection", projection);
             shader.Use();
 
             while (!GLFW.WindowShouldClose(window))
             {
+                processInput(window);
                 gl.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
                 gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-                //动态模型矩阵
+                var projection = Matrix4x4.CreatePerspectiveFieldOfView(fov, 800f / 600f, 0.1f, 100f);
+                shader.SetMatrix4x4("projection", projection);
+
+                var view = Matrix4x4.CreateLookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+                shader.SetMatrix4x4("view", view);
+
                 for (int i = 0; i < cubePositions.Length; i++)
                 {
                     var model = Matrix4x4.CreateTranslation(cubePositions[i]);
                     var time = (float)GLFW.GetTime();
 
-                    var angle = MathF.PI / 4f * (i + 1);
-                    var modelR = Matrix4x4.CreateRotationY(angle, Vector3.Zero) * Matrix4x4.CreateRotationX(angle, Vector3.Zero);
+                    var angle = MathF.PI / 4f;//* (i + 1);
+                    var modelR = Matrix4x4.CreateRotationY(angle * time, Vector3.Zero) * Matrix4x4.CreateRotationX(angle * time, Vector3.Zero);
                     model = modelR * model;
                     shader.SetMatrix4x4("model", model);
 
-                    float radius = 10.0f;
-                    float camX = MathF.Sin(time) * radius;
-                    float camZ = MathF.Cos(time) * radius;
-                    var view = Matrix4x4.CreateLookAt(new Vector3(camX, 0, camZ), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
-                    shader.SetMatrix4x4("view", view);
                     gl.DrawArrays(PrimitiveType.Triangles, 0, 36);//正方体6个面 12个三角面 12 * 3 = 36 个顶点
                 }
 
@@ -341,9 +343,99 @@ namespace Camera
                 GLFW.PollEvents();
             }
         }
+
+        static Vector3 cameraPos = new Vector3(0, 0, 3f);
+        static Vector3 cameraFront = new Vector3(0, 0, -1f);
+        static Vector3 cameraUp = new Vector3(0, 1f, 0);
+
+        static float deltaTime = 0f;
+        static float lastFrame = 0f;
+        static float yaw = 1.5f * MathF.PI;
+        static float pitch = 0;
+        private static unsafe void processInput(WindowHandle* window)
+        {
+            float currentFrame = (float)GLFW.GetTime();
+            deltaTime = currentFrame - lastFrame;
+            lastFrame = currentFrame;
+
+            var cameraSpeed = 2.5f * deltaTime;
+            if (GLFW.GetKey(window, Keys.W) == (int)InputAction.Press)
+            {
+                cameraPos += cameraSpeed * cameraFront;
+            }
+            if (GLFW.GetKey(window, Keys.S) == (int)InputAction.Press)
+            {
+                cameraPos -= cameraSpeed * cameraFront;
+            }
+            if (GLFW.GetKey(window, Keys.A) == (int)InputAction.Press)
+            {
+                cameraPos -= Vector3.Normalize(Vector3.Cross(cameraFront, cameraUp)) * cameraSpeed;
+            }
+            if (GLFW.GetKey(window, Keys.D) == (int)InputAction.Press)
+            {
+                cameraPos += Vector3.Normalize(Vector3.Cross(cameraFront, cameraUp)) * cameraSpeed;
+            }
+
+            var cameraRotate = 0.5f * deltaTime;
+            if (GLFW.GetKey(window, Keys.Q) == (int)InputAction.Press)
+            {
+                yaw -= cameraRotate;
+                var x = MathF.Cos(yaw);
+                var z = MathF.Sin(yaw);
+                cameraFront = new Vector3(x, 0, z);
+            }
+            if (GLFW.GetKey(window, Keys.E) == (int)InputAction.Press)
+            {
+                yaw += cameraRotate;
+                var x = MathF.Cos(yaw);
+                var z = MathF.Sin(yaw);
+                cameraFront = new Vector3(x, 0, z);
+            }
+        }
+
         private static unsafe void framebuffer_size_callback(WindowHandle* window, int width, int height)
         {
             gl.Viewport(0, 0, (uint)width, (uint)height);
+        }
+
+        static float fov = MathF.PI / 3;
+        private static unsafe void scroll_callback(WindowHandle* window, double offsetX, double offsetY)
+        {
+            if (fov >= 0.01f && fov <= MathF.PI / 4)
+                fov -= (float)offsetY / 90 * MathF.PI;
+            if (fov <= 0.01f)
+                fov = 0.01f;
+            if (fov >= MathF.PI / 4)
+                fov = MathF.PI / 4;
+        }
+
+        static double lastX = 400;
+        static double lastY = 300;
+
+        static bool first = true;
+        private static unsafe void cursor_pos_callback(WindowHandle* window, double x, double y)
+        {
+            if (first)
+            {
+                lastX = x;
+                lastY = y;
+                first = false;
+            }
+
+            var xoffset = x - lastX;
+            var yoffset = lastY - y;
+            lastX = x;
+            lastY = y;
+
+            yaw += (float)xoffset / 400f;
+            pitch += (float)yoffset / 300f;
+            if (pitch > 0.5 * MathF.PI) pitch = 0.45f * MathF.PI;
+            if (pitch < -0.5 * MathF.PI) pitch = -0.45f * MathF.PI;
+
+            var x1 = MathF.Cos(yaw) * MathF.Cos(pitch);
+            var z1 = MathF.Sin(yaw) * MathF.Cos(pitch);
+            var y1 = MathF.Sin(pitch);
+            cameraFront = new Vector3(x1, y1, z1);
         }
     }
 }

@@ -114,7 +114,7 @@ namespace Shaders
             gl = GL.GetApi(new GlfwContext(GLFW, window));
 
             OpenGL.Extension.Shader.sgl = gl;
-            using var shader = new OpenGL.Extension.Shader("./triangle2.vert", "./triangle2.frag");
+            var shader = new OpenGL.Extension.Shader("./triangle2.vert", "./triangle2.frag");
             var vertices = new[]
             {
                 // 位置              // 颜色
