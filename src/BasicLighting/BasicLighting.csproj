@@ -9,19 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Silk.NET.GLFW" Version="2.15.0" />
-    <PackageReference Include="Silk.NET.OpenGLES" Version="2.15.0" />
-    <PackageReference Include="SkiaSharp" Version="2.80.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Shader\OpenGL.Extension.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="light.vert">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="colors.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -29,6 +20,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="light.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="light.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

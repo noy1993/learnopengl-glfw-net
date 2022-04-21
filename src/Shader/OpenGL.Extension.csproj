@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Silk.NET.GLFW" Version="2.15.0" />
     <PackageReference Include="Silk.NET.OpenGLES" Version="2.15.0" />
   </ItemGroup>
 

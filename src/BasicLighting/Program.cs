@@ -2,7 +2,7 @@
 using Silk.NET.OpenGLES;
 using System.Numerics;
 
-namespace Colors
+namespace BasicLighting
 {
     class Program
     {
@@ -90,10 +90,13 @@ namespace Colors
             //启用顶点属性
             gl.EnableVertexAttribArray(0);
 
+            var lightPos = new Vector3(2, 2, 2);
+
             Matrix4x4 model;
             while (!GLFW.WindowShouldClose(window))
             {
                 camera.ProcessInput(GLFW, window);
+
                 //渲染背景
                 gl.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
                 gl.Clear(ClearBufferMask.ColorBufferBit);
@@ -117,7 +120,7 @@ namespace Colors
                 lightshader.SetMatrix4x4("view", view);
 
                 lightshader.SetVec3("lightColor", lightColor);
-                model = Matrix4x4.CreateTranslation(new Vector3(2, 2, 2));
+                model = Matrix4x4.CreateTranslation(lightPos);
                 lightshader.SetMatrix4x4("model", model);
                 gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
 
