@@ -58,6 +58,22 @@ namespace OpenGL.Extension
             sgl.UniformMatrix4(index, 1, false, (float*)&value);
         }
 
+        public unsafe void SetMaterial(string name, Material value)
+        {
+            SetVec3($"{name}.ambient", value.Ambient);
+            SetVec3($"{name}.diffuse", value.Diffuse);
+            SetVec3($"{name}.specular", value.Specular);
+            SetFloat($"{name}.shininess", value.Shininess);
+        }
+
+        public unsafe void SetLight(string name, Light value)
+        {
+            SetVec3($"{name}.ambient", value.Ambient);
+            SetVec3($"{name}.diffuse", value.Diffuse);
+            SetVec3($"{name}.specular", value.Specular);
+            SetVec3($"{name}.position", value.Position);
+        }
+
         private unsafe void CheckCompileErrors(uint shader, Type type)
         {
             int success;

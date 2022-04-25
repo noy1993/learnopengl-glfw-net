@@ -26,14 +26,14 @@ namespace OpenGL.Extension
 
         public event Action<WindowSender> Press;
 
-        public Vector3 Pos { get; set; }
+        public Vector3 Position { get; set; }
         public Vector3 Front { get; set; }
         public Vector3 WorldUp { get; set; }
 
         public Vector3 Right => Vector3.Normalize(Vector3.Cross(Front, WorldUp));
         public Vector3 Up => Vector3.Normalize(Vector3.Cross(Right, Front));
 
-        public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookAt(Pos, Pos + Front, Up);
+        public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookAt(Position, Position + Front, Up);
 
         public float Yaw { get; set; }
         public float Pitch { get; set; }
@@ -42,7 +42,7 @@ namespace OpenGL.Extension
         public float MouseSensitivity { get; set; }
         public Camera()
         {
-            Pos = new Vector3(0, 0, 0);
+            Position = new Vector3(0, 0, 0);
             Front = new Vector3(0, 0, -1);
             WorldUp = new Vector3(0, 1, 0);
 
@@ -56,7 +56,7 @@ namespace OpenGL.Extension
 
         public Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
         {
-            Pos = new Vector3(posX, posY, posZ);
+            Position = new Vector3(posX, posY, posZ);
             Front = new Vector3(0, 0, -1);
             WorldUp = new Vector3(upX, upY, upZ);
 
@@ -79,19 +79,27 @@ namespace OpenGL.Extension
             var cameraSpeed = 2.5f * deltaTime;
             if (GLFW.GetKey(window, Keys.W) == (int)InputAction.Press)
             {
-                Pos += cameraSpeed * Front;
+                Position += cameraSpeed * Front;
             }
             if (GLFW.GetKey(window, Keys.S) == (int)InputAction.Press)
             {
-                Pos -= cameraSpeed * Front;
+                Position -= cameraSpeed * Front;
             }
             if (GLFW.GetKey(window, Keys.A) == (int)InputAction.Press)
             {
-                Pos -= Vector3.Normalize(Vector3.Cross(Front, WorldUp)) * cameraSpeed;
+                Position -= Vector3.Normalize(Vector3.Cross(Front, WorldUp)) * cameraSpeed;
             }
             if (GLFW.GetKey(window, Keys.D) == (int)InputAction.Press)
             {
-                Pos += Vector3.Normalize(Vector3.Cross(Front, WorldUp)) * cameraSpeed;
+                Position += Vector3.Normalize(Vector3.Cross(Front, WorldUp)) * cameraSpeed;
+            }
+            if (GLFW.GetKey(window, Keys.X) == (int)InputAction.Press)
+            {
+                Position -= Vector3.Normalize(WorldUp) * cameraSpeed;
+            }
+            if (GLFW.GetKey(window, Keys.C) == (int)InputAction.Press)
+            {
+                Position += Vector3.Normalize(WorldUp) * cameraSpeed;
             }
 
             var cameraRotate = 0.5f * deltaTime;

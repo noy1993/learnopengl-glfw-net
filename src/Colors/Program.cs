@@ -101,7 +101,7 @@ namespace Colors
                 shader.Use();
                 var projection = Matrix4x4.CreatePerspectiveFieldOfView(camera.Zoom, 800f / 600f, 0.1f, 100f);
                 shader.SetMatrix4x4("projection", projection);
-                var view = Matrix4x4.CreateLookAt(camera.Pos, camera.Pos + camera.Front, camera.WorldUp);
+                var view = Matrix4x4.CreateLookAt(camera.Position, camera.Position + camera.Front, camera.WorldUp);
                 shader.SetMatrix4x4("view", camera.ViewMatrix);
 
                 //draw object

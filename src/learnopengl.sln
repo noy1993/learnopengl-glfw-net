@@ -29,7 +29,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lighting", "Lighting", "{BA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Colors", "Colors\Colors.csproj", "{D29951A3-DE86-4ECB-8206-35DBC5C70273}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicLighting", "BasicLighting\BasicLighting.csproj", "{7C6F66FC-839B-43D3-AB7E-55DAF68E9EAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicLighting", "BasicLighting\BasicLighting.csproj", "{7C6F66FC-839B-43D3-AB7E-55DAF68E9EAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Materials", "Materials\Materials.csproj", "{421ACF0A-137A-40CF-9FF0-F08401201F1C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,10 @@ Global
 		{7C6F66FC-839B-43D3-AB7E-55DAF68E9EAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C6F66FC-839B-43D3-AB7E-55DAF68E9EAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C6F66FC-839B-43D3-AB7E-55DAF68E9EAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{421ACF0A-137A-40CF-9FF0-F08401201F1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{421ACF0A-137A-40CF-9FF0-F08401201F1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{421ACF0A-137A-40CF-9FF0-F08401201F1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{421ACF0A-137A-40CF-9FF0-F08401201F1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -96,6 +102,7 @@ Global
 		{8F268DA0-F09E-4984-8B27-760C6E913FE2} = {1A61A618-4F4F-4393-B0A2-FC6EBEC85111}
 		{D29951A3-DE86-4ECB-8206-35DBC5C70273} = {BAA337DC-0DE2-4345-93C3-F9F8CA37782A}
 		{7C6F66FC-839B-43D3-AB7E-55DAF68E9EAD} = {BAA337DC-0DE2-4345-93C3-F9F8CA37782A}
+		{421ACF0A-137A-40CF-9FF0-F08401201F1C} = {BAA337DC-0DE2-4345-93C3-F9F8CA37782A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7201FC11-CA66-48B1-83B4-3EFBCE509205}
