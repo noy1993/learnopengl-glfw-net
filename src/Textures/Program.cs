@@ -177,6 +177,7 @@ namespace Textures
 
             //加载贴图
             var texture1 = gl.GenTexture();
+            gl.ActiveTexture(TextureUnit.Texture0);
             gl.BindTexture(TextureTarget.Texture2D, texture1);
 
             gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.Repeat);   // set texture wrapping to gl._REPEAT (default wrapping method)
@@ -191,6 +192,7 @@ namespace Textures
             gl.GenerateMipmap(TextureTarget.Texture2D);
 
             var texture2 = gl.GenTexture();
+            gl.ActiveTexture(TextureUnit.Texture1);
             gl.BindTexture(TextureTarget.Texture2D, texture2);
 
             gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.Repeat);   // set texture wrapping to gl._REPEAT (default wrapping method)
@@ -217,12 +219,6 @@ namespace Textures
                 //渲染背景
                 gl.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
                 gl.Clear(ClearBufferMask.ColorBufferBit);
-
-                //绘制物体
-                gl.ActiveTexture(TextureUnit.Texture0);
-                gl.BindTexture(TextureTarget.Texture2D, texture1);
-                gl.ActiveTexture(TextureUnit.Texture1);
-                gl.BindTexture(TextureTarget.Texture2D, texture2);
 
                 //shader.Use();
                 //glBindVertexArray(VAO);
