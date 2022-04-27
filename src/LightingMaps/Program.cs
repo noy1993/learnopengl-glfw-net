@@ -179,8 +179,8 @@ namespace BasicLighting
             gl = GL.GetApi(new GlfwContext(GLFW, window));
             gl.Enable(EnableCap.DepthTest);
             OpenGL.Extension.Shader.sgl = gl;
-            OpenGL.Extension.Shader shader = new OpenGL.Extension.Shader("./lighting_maps.vert", "./lighting_maps2.frag");
-            OpenGL.Extension.Shader lightshader = new OpenGL.Extension.Shader("./light.vert", "./light.frag");
+            OpenGL.Extension.Shader shader = new("./lighting_maps.vert", "./lighting_maps2.frag");
+            OpenGL.Extension.Shader lightshader = new("./light.vert", "./light.frag");
 
             var camera = new OpenGL.Extension.Camera();
 

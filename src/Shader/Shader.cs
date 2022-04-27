@@ -63,12 +63,9 @@ namespace OpenGL.Extension
             value.SetMaterial(this, name);
         }
 
-        public unsafe void SetLight(string name, Light value)
+        public unsafe void SetLight(string name, ILight value)
         {
-            SetVec3($"{name}.ambient", value.Ambient);
-            SetVec3($"{name}.diffuse", value.Diffuse);
-            SetVec3($"{name}.specular", value.Specular);
-            SetVec3($"{name}.position", value.Position);
+            value.SetLight(this, name);
         }
 
         private unsafe void CheckCompileErrors(uint shader, Type type)
