@@ -362,7 +362,7 @@ namespace LightCasters
             gl = GL.GetApi(new GlfwContext(GLFW, window));
             gl.Enable(EnableCap.DepthTest);
             OpenGL.Extension.Shader.sgl = gl;
-            OpenGL.Extension.Shader shader = new("./lighting_casters_spot.vert", "./lighting_casters_spot.frag");
+            OpenGL.Extension.Shader shader = new("./lighting_casters_spot.vert", "./lighting_casters_spot2.frag");
 
             var camera = new OpenGL.Extension.Camera();
             var map = new OpenGL.Extension.GLBitmap(gl, "./container2.png", TextureUnit.Texture0);
@@ -375,8 +375,8 @@ namespace LightCasters
 
             var light = new OpenGL.Extension.SpotLight()
             {
-                Ambient = new Vector3(0.2f, 0.2f, 0.2f),
-                Diffuse = new Vector3(0.5f, 0.5f, 0.5f),
+                Ambient = new Vector3(0.1f, 0.1f, 0.1f),
+                Diffuse = new Vector3(0.8f, 0.8f, 0.8f),
 
                 Specular = new Vector3(1.0f, 1.0f, 1.0f),
                 Position = camera.Position,
@@ -385,8 +385,8 @@ namespace LightCasters
                 Constant = 1,
                 Linear = 0.09f,
                 Quadratic = 0.032f,
-                CutOff = MathF.PI * 0.07f,
-                OuterCutOff = MathF.PI * 0.1f,
+                CutOff = MathF.Cos(MathF.PI * 0.07f),
+                OuterCutOff = MathF.Cos(MathF.PI * 0.1f),
             };
 
             var vertices = new float[] {
@@ -470,11 +470,7 @@ namespace LightCasters
             while (!GLFW.WindowShouldClose(window))
             {
                 camera.ProcessInput(GLFW, window);
-
-                float radius = 10.0f;
                 var time = (float)GLFW.GetTime();
-                float x = MathF.Sin(time) * radius;
-                float y = MathF.Cos(time) * radius;
 
                 //渲染背景
                 gl.ClearColor(light.Ambient.X, light.Ambient.Y, light.Ambient.Z, 1f);

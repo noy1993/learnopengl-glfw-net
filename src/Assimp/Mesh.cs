@@ -1,7 +1,7 @@
 ﻿using Silk.NET.OpenGLES;
 using System.Runtime.InteropServices;
 
-namespace OpenGL.Extension
+namespace Mesh
 {
     public class Mesh
     {
@@ -20,9 +20,26 @@ namespace OpenGL.Extension
 
         public unsafe void Draw(OpenGL.Extension.Shader shader)
         {
+            uint diffuseNr = 1;
+            uint specularNr = 1;
+            for (int i = 0; i < Textures.Count; i++)
+            {
+                gl.ActiveTexture(TextureUnit.Texture0 + i);
+                var name = Textures[i].Type;
+                uint number = 0;
+                if (name == "texture_diffuse")
+                    number = diffuseNr++;
+                else if(name == "texture_specular")
+                    number = specularNr++;
+
+                shader.SetInt($"material.{name}{number}", i);
+                gl.BindTexture(TextureTarget.Texture2D, Textures[i].Id);
+            }
+
             gl.BindVertexArray(vao);
             gl.DrawElements(PrimitiveType.Triangles, (uint)Indices.Count, DrawElementsType.UnsignedInt, null);
             gl.BindVertexArray(0);
+            
         }
 
         readonly GL gl;
@@ -43,7 +60,7 @@ namespace OpenGL.Extension
             gl.EnableVertexAttribArray(1);
             gl.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, size, (void*)(3 * sizeof(float)));
             gl.EnableVertexAttribArray(2);
-            gl.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, size, (void*)(5 * sizeof(float)));
+            gl.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, size, (void*)(6 * sizeof(float)));
 
 
             ebo = gl.GenBuffer();

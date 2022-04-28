@@ -63,9 +63,38 @@ namespace OpenGL.Extension
             value.SetMaterial(this, name);
         }
 
+        public void SetMaterial(string name, IMaterial value, int index)
+        {
+            value.SetMaterial(this, $"{name}[{index}]");
+        }
+
+        public void SetMaterialArray(string name, IEnumerable<IMaterial> value)
+        {
+            int index = 0;
+            foreach (var material in value)
+            {
+                material.SetMaterial(this, $"{name}[{index}]");
+                index++;
+            }
+        }
+
         public unsafe void SetLight(string name, ILight value)
         {
             value.SetLight(this, name);
+        }
+        public void SetLight(string name, ILight value, int index)
+        {
+            value.SetLight(this, $"{name}[{index}]");
+        }
+
+        public void SetPointLights(string name, IEnumerable<PointLight> value)
+        {
+            int index = 0;
+            foreach (var material in value)
+            {
+                material.SetLight(this, $"{name}[{index}]");
+                index++;
+            }
         }
 
         private unsafe void CheckCompileErrors(uint shader, Type type)
