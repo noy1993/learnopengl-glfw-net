@@ -1,4 +1,5 @@
-﻿using Silk.NET.OpenGLES;
+﻿using OpenGL.Extension;
+using Silk.NET.OpenGLES;
 using System.Runtime.InteropServices;
 
 namespace Mesh
@@ -20,26 +21,33 @@ namespace Mesh
 
         public unsafe void Draw(OpenGL.Extension.Shader shader)
         {
+            gl.BindVertexArray(vao);
             uint diffuseNr = 1;
             uint specularNr = 1;
             for (int i = 0; i < Textures.Count; i++)
             {
                 gl.ActiveTexture(TextureUnit.Texture0 + i);
                 var name = Textures[i].Type;
-                uint number = 0;
                 if (name == "texture_diffuse")
-                    number = diffuseNr++;
+                {
+                    shader.SetInt($"material1.diffuse", i);
+                    shader.SetFloat($"material1.shininess", 32f);
+                    diffuseNr++;
+                }
                 else if(name == "texture_specular")
-                    number = specularNr++;
-
-                shader.SetInt($"material.{name}{number}", i);
+                {
+                    shader.SetInt($"material1.specular", i);
+                    specularNr++;
+                }
+                
                 gl.BindTexture(TextureTarget.Texture2D, Textures[i].Id);
             }
 
             gl.BindVertexArray(vao);
             gl.DrawElements(PrimitiveType.Triangles, (uint)Indices.Count, DrawElementsType.UnsignedInt, null);
             gl.BindVertexArray(0);
-            
+
+            gl.ActiveTexture(TextureUnit.Texture0);
         }
 
         readonly GL gl;

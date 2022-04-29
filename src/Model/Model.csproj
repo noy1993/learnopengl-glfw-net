@@ -9,11 +9,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Silk.NET.Assimp" Version="2.15.0" />
+    <PackageReference Include="AssimpNet" Version="4.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Assimp\Mesh.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="model_loading.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="model_loading.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
