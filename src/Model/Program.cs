@@ -12,7 +12,7 @@ namespace Model
         static unsafe void Main(string[] args)
         {
             GLFW.Init();
-
+            //GLFW.WindowHint(WindowHintInt.Samples, 4);
             var window = GLFW.CreateWindow(800, 600, "LearnOpenGL", null, null);
             if (window == null)
             {
