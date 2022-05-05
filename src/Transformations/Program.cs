@@ -32,7 +32,7 @@ namespace Transformations
             gl = GL.GetApi(new GlfwContext(GLFW, window));
 
             OpenGL.Extension.Shader.sgl = gl;
-            OpenGL.Extension.Shader shader = new OpenGL.Extension.Shader("./texture.vert", "./texture.frag");
+            OpenGL.Extension.Shader shader = new OpenGL.Extension.Shader("./transformations.vert", "./transformations.frag");
             var vertices = new[]
             {
                 // positions        // texture coords

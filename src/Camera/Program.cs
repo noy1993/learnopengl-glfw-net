@@ -31,7 +31,7 @@ namespace Camera
             gl = GL.GetApi(new GlfwContext(GLFW, window));
 
             OpenGL.Extension.Shader.sgl = gl;
-            var shader = new OpenGL.Extension.Shader("./coordinate_systems.vert", "./coordinate_systems.frag");
+            var shader = new OpenGL.Extension.Shader("./camera.vert", "./camera.frag");
 
             // activate shader
             shader.Use();
