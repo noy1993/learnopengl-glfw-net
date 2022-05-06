@@ -26,6 +26,7 @@ namespace StencilTesting
             gl = GL.GetApi(new GlfwContext(GLFW, window));
             OpenGL.Extension.Shader.sgl = gl;
             OpenGL.Extension.Shader shader = new OpenGL.Extension.Shader("./stencil_testing.vert", "./stencil_testing.frag");
+            OpenGL.Extension.Shader shader_color = new OpenGL.Extension.Shader("./stencil_testing.vert", "./stencil_testing_color.frag");
             var cubeVertices = new float[]{
                 // positions          // texture Coords
                 -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -89,7 +90,7 @@ namespace StencilTesting
             gl.BindBuffer(BufferTargetARB.ArrayBuffer, cubeVBO);
             fixed (float* v = &cubeVertices[0])
             {
-                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * cubeVertices.Length), v, BufferUsageARB.StreamDraw);
+                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * cubeVertices.Length), v, BufferUsageARB.StaticDraw);
             }
 
             gl.EnableVertexAttribArray(0);
@@ -106,7 +107,7 @@ namespace StencilTesting
             gl.BindBuffer(BufferTargetARB.ArrayBuffer, planeVBO);
             fixed (float* v = &planeVertices[0])
             {
-                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * planeVertices.Length), v, BufferUsageARB.StreamDraw);
+                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * planeVertices.Length), v, BufferUsageARB.StaticDraw);
             }
 
             gl.EnableVertexAttribArray(0);
@@ -124,14 +125,18 @@ namespace StencilTesting
 
             gl.Enable(EnableCap.DepthTest);
             gl.DepthFunc(DepthFunction.Less);
-            //gl.DepthMask(false);
+
+            gl.Enable(EnableCap.StencilTest);
+            gl.StencilFunc(StencilFunction.Always, 1, 0xff);//通过测试的条件
+            gl.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
+
             var camera = new OpenGL.Extension.Camera();
             gl.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             while (!GLFW.WindowShouldClose(window))
             {
                 camera.ProcessInput(GLFW, window);
 
-                gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
 
                 var currentFrame = (float)GLFW.GetTime();
                 deltaTime = currentFrame - lastFrame;
@@ -139,7 +144,6 @@ namespace StencilTesting
 
                 shader.Use();
                 gl.BindVertexArray(cubeVAO);
-
                 gl.ActiveTexture(TextureUnit.Texture0);
                 gl.BindTexture(TextureTarget.Texture2D, cubeTexture);
 
@@ -156,12 +160,37 @@ namespace StencilTesting
                 shader.SetMatrix4x4("model", model);
                 gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
 
-                gl.DepthMask(false);
+                gl.StencilMask(0x00);
                 gl.BindVertexArray(planeVAO);
                 gl.BindTexture(TextureTarget.Texture2D, floorTexture);
                 shader.SetMatrix4x4("model", Matrix4x4.Identity);
                 gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
-                gl.DepthMask(true);
+
+                gl.BindVertexArray(0);
+
+                // 绘制轮廓
+                gl.StencilMask(0x00);
+                gl.Disable(EnableCap.DepthTest);
+                gl.StencilFunc(StencilFunction.Notequal, 1, 0xff);
+
+                shader_color.Use();
+                shader_color.SetMatrix4x4("projection", projection);
+                shader_color.SetMatrix4x4("view", camera.ViewMatrix);
+                gl.BindVertexArray(cubeVAO);
+                float scale = 1.1f;
+                model = Matrix4x4.CreateTranslation(new Vector3(-1.0f, 0.0f, -1.0f));
+                model = Matrix4x4.CreateScale(scale) * model;
+                shader_color.SetMatrix4x4("model", model);
+                gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
+
+                model = Matrix4x4.CreateTranslation(new Vector3(2.0f, 0.0f, 0.0f));
+                model = Matrix4x4.CreateScale(scale) * model;
+                shader_color.SetMatrix4x4("model", model);
+                gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
+
+                gl.StencilMask(0xff);
+                gl.Enable(EnableCap.DepthTest);
+                gl.StencilFunc(StencilFunction.Always, 1, 0xff);
 
                 GLFW.SwapBuffers(window);
                 GLFW.PollEvents();

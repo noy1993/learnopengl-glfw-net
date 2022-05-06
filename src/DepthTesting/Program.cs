@@ -89,7 +89,7 @@ namespace DepthTesting
             gl.BindBuffer(BufferTargetARB.ArrayBuffer, cubeVBO);
             fixed (float* v = &cubeVertices[0])
             {
-                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * cubeVertices.Length), v, BufferUsageARB.StreamDraw);
+                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * cubeVertices.Length), v, BufferUsageARB.StaticDraw);
             }
 
             gl.EnableVertexAttribArray(0);
@@ -106,7 +106,7 @@ namespace DepthTesting
             gl.BindBuffer(BufferTargetARB.ArrayBuffer, planeVBO);
             fixed (float* v = &planeVertices[0])
             {
-                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * planeVertices.Length), v, BufferUsageARB.StreamDraw);
+                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * planeVertices.Length), v, BufferUsageARB.StaticDraw);
             }
 
             gl.EnableVertexAttribArray(0);

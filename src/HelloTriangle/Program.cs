@@ -2,9 +2,6 @@
 using Silk.NET.OpenGLES;
 using System;
 using System.IO;
-using System.Numerics;
-using System.Text;
-using System.Threading;
 
 namespace HelloTriangle
 {
@@ -14,7 +11,7 @@ namespace HelloTriangle
         {
             TriangleProgram();
             //RecProgram();
-           
+
         }
         static readonly Glfw GLFW = Glfw.GetApi();
         static GL gl;
@@ -33,9 +30,6 @@ namespace HelloTriangle
 
             gl = GL.GetApi(new GlfwContext(GLFW, window));
 
-            //gl.Enable(EnableCap.ScissorTest);
-            //gl.Scissor(0, 0, 100, 100);
-            
             //创建顶点着色器 并编译
             uint vertexShader = gl.CreateShader(ShaderType.VertexShader);
             gl.ShaderSource(vertexShader, File.ReadAllText("./triangle.vert"));
@@ -73,6 +67,7 @@ namespace HelloTriangle
                 gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * vertices.Length), v, BufferUsageARB.StaticDraw);
             }
 
+
             //告诉OpenGL该如何解析顶点数据
             gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
             //启用顶点属性
@@ -84,25 +79,15 @@ namespace HelloTriangle
             {
                 //渲染背景
                 gl.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-                gl.Clear(ClearBufferMask.ColorBufferBit|ClearBufferMask.StencilBufferBit);
+                gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.StencilBufferBit);
                 //绘制物体
                 gl.BindVertexArray(VAO);
 
-                gl.StencilMask(0xff);
-                gl.StencilFunc(StencilFunction.Always, 1, 0xff);
-
-                gl.DrawArrays(PrimitiveType.Triangles, 0, 3);
+                gl.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
                 GLFW.SwapBuffers(window);
-              
-                GLFW.PollEvents();
 
-                gl.StencilMask(0xff);
-                gl.StencilFunc(StencilFunction.Always, 1, 0xff);
-                
-                GLFW.GetCursorPos(window, out var x, out var y);
-                gl.ReadPixels<int>((int)x, (int)y, 1, 1, PixelFormat.StencilIndex, PixelType.Int, out var indexd);
-                Console.WriteLine($"x{x},y{y},{indexd}");
+                GLFW.PollEvents();
             }
 
             gl.DeleteVertexArray(VAO);
