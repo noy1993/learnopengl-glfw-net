@@ -1,5 +1,4 @@
-﻿using OpenGL.Extension;
-using Silk.NET.OpenGLES;
+﻿using Silk.NET.OpenGLES;
 using System.Runtime.InteropServices;
 
 namespace Mesh
@@ -34,12 +33,12 @@ namespace Mesh
                     shader.SetFloat($"material1.shininess", 32f);
                     diffuseNr++;
                 }
-                else if(name == "texture_specular")
+                else if (name == "texture_specular")
                 {
                     shader.SetInt($"material1.specular", i);
                     specularNr++;
                 }
-                
+
                 gl.BindTexture(TextureTarget.Texture2D, Textures[i].Id);
             }
 

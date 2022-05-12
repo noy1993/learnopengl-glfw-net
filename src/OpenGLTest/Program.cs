@@ -1,5 +1,5 @@
 ﻿
-namespace OpenglTest
+namespace OpenGLTest
 {
     class Program
     {

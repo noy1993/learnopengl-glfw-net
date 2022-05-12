@@ -132,7 +132,7 @@ namespace Framebuffers
             gl.BindBuffer(BufferTargetARB.ArrayBuffer, screenVBO);
             fixed (float* v = &quadVertices[0])
             {
-                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * planeVertices.Length), v, BufferUsageARB.StaticDraw);
+                gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * quadVertices.Length), v, BufferUsageARB.StaticDraw);
             }
 
             gl.EnableVertexAttribArray(0);
@@ -162,9 +162,10 @@ namespace Framebuffers
             //纹理附件
             var textureColorbuffer = gl.GenTexture();
             gl.BindTexture(TextureTarget.Texture2D, textureColorbuffer);
-            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgb, 800, 600, 0, PixelFormat.Rgb, PixelType.UnsignedByte, null);
-            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
+            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, 800, 600, 0, PixelFormat.Rgba, PixelType.UnsignedByte, null);
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.LinearMipmapLinear);
             gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
+            gl.GenerateMipmap(TextureTarget.Texture2D);
 
             gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, textureColorbuffer, 0);
 
@@ -181,15 +182,17 @@ namespace Framebuffers
             gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
             gl.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
             while (!GLFW.WindowShouldClose(window))
             {
                 camera.ProcessInput(GLFW, window);
-
+                gl.ClearColor(0, 0, 0, 0);
                 //接下来图像绘制在此帧上
                 gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
                 gl.Enable(EnableCap.DepthTest);//将图像绘制在屏幕的时候需要禁用，因为屏幕只是一个二维的平面
 
                 gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                gl.ColorMask(true, true, true, true);
 
                 var currentFrame = (float)GLFW.GetTime();
                 deltaTime = currentFrame - lastFrame;
@@ -214,14 +217,34 @@ namespace Framebuffers
                 shader.SetMatrix4x4("model", model);
                 gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
 
+                //var result = new byte[4];
+                //GLFW.GetCursorPos(window, out var xpos, out var ypos);
+                ////Console.WriteLine($"x:{xpos},y:{ypos}");
+                //gl.ReadPixels((int)xpos, (int)(600 - ypos), 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, result.AsSpan());
+
+                //shader.SetBool("selected", result[2] != 0);
+
+                //Console.WriteLine($"{result[0]},{result[1]},{result[2]},{result[3]}");
+
                 gl.BindVertexArray(planeVAO);
                 gl.BindTexture(TextureTarget.Texture2D, floorTexture);
                 shader.SetMatrix4x4("model", Matrix4x4.Identity);
                 gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
+                //FileStream stream = new FileStream(@"C:\Users\noy\Pictures\img\123.png", FileMode.Create);
+
+                //SKBitmap bitmap = new SKBitmap(800, 600, SKColorType.Rgba8888, SKAlphaType.Premul);
+
+                //gl.ReadPixels(0, 0, 800, 600, PixelFormat.Rgba, PixelType.UnsignedByte, bitmap.GetPixels().ToPointer());
+                //SKImage image = SKImage.FromBitmap(bitmap);
+
+                //var d = image.Encode(SKEncodedImageFormat.Png, 100);
+                //d.SaveTo(stream);
+                //stream.Close();
+
                 gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0); //将平面显示切换到当前
                 gl.Disable(EnableCap.DepthTest);
-                gl.ClearColor(1, 1, 1, 1);
+                gl.ClearColor(0, 0, 0, 0);
                 gl.Clear(ClearBufferMask.ColorBufferBit);
 
                 screenShader.Use();
@@ -229,7 +252,7 @@ namespace Framebuffers
                 gl.BindTexture(TextureTarget.Texture2D, textureColorbuffer);
                 gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
-
+                GLFW.ShowFPS();
                 GLFW.SwapBuffers(window);
                 GLFW.PollEvents();
             }

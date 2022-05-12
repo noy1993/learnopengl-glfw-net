@@ -1,7 +1,32 @@
 ﻿using System.Numerics;
 
+namespace Silk.NET.GLFW
+{
+    public static class GLFWExtension
+    {
+        static double lastTime;
+        static int nbFrames;
+        public static void ShowFPS(this Glfw GLFW)
+        {
+            double currentTime = GLFW.GetTime();
+            double delta = currentTime - lastTime;
+            nbFrames++;
+            if (delta >= 1.0)
+            { // If last cout was more than 1 sec ago
+                Console.WriteLine(1000.0 / nbFrames);
+                double fps = nbFrames / delta;
+
+                nbFrames = 0;
+                lastTime = currentTime;
+                Console.WriteLine($"fps: {fps:F1}");
+            }
+        }
+    }
+}
+
 namespace OpenGL.Extension
 {
+
     public static class MatrixExtension
     {
         public static Matrix4x4 Rotation(float radian, Vector3 axis)
@@ -21,8 +46,8 @@ namespace OpenGL.Extension
             var v = axis.Y;
             var w = axis.Z;
 
-            var a = p.X; 
-            var b = p.Y; 
+            var a = p.X;
+            var b = p.Y;
             var c = p.Z;
 
             var Cos = MathF.Cos(radian);

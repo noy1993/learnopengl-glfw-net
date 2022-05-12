@@ -40,6 +40,9 @@ namespace OpenGL.Extension
         public float MovementSpeed { get; set; }
         public float Zoom { get; set; }
         public float MouseSensitivity { get; set; }
+
+        public float Hight { get; set; } = 600;
+        public float Width { get; set; } = 800;
         public Camera()
         {
             Position = new Vector3(0, 0, 0);
@@ -68,38 +71,98 @@ namespace OpenGL.Extension
             Zoom = ZOOM;
         }
 
+
+
+        bool mouse_right_press;
+        bool mouse_left_press;
+        KeyModifiers _mods;
+
+        static float degToRad(float deg) => deg * MathF.PI / 180.0f;
+
+        public void MouseInput(WindowHandle* window, MouseButton button, InputAction action, KeyModifiers mods)
+        {
+            if (button == MouseButton.Right)
+            {
+                _mods = mods;
+                Glfw GLFW = Glfw.GetApi();
+                GLFW.GetCursorPos(window, out var xpos, out var ypos);
+                if (action == InputAction.Press)
+                {
+                    mouse_right_press = true;
+                    lastMouseX = (float)xpos;
+                    lastMouseY = (float)ypos;
+                }
+                else
+                {
+                    mouse_right_press = false;
+                }
+            }
+        }
+
+        public void MouseMove(WindowHandle* window, double newX, double newY)
+        {
+            Glfw GLFW = Glfw.GetApi();
+            if (mouse_right_press)
+            {
+                var deltaX = (float)newX - lastMouseX;
+                var deltaY = (float)newY - lastMouseY;
+
+                lastMouseX = (float)newX;
+                lastMouseY = (float)newY;
+
+                Yaw = deltaX;
+                Pitch = deltaY;
+
+                if (_mods == KeyModifiers.Shift)
+                {
+                    Pan(deltaX, deltaY);
+                }
+                else
+                {
+                    Orbit(deltaX, deltaY);
+                }
+            }
+        }
+
         float deltaTime = 0f;
         float lastFrame = 0f;
-        public unsafe void ProcessInput(Glfw GLFW, WindowHandle* window)
+        public unsafe bool ProcessInput(Glfw GLFW, WindowHandle* window)
         {
             float currentFrame = (float)GLFW.GetTime();
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
-
+            Press?.Invoke(new WindowSender(GLFW, window));
             var cameraSpeed = 2.5f * deltaTime;
+            bool flag = false;
             if (GLFW.GetKey(window, Keys.W) == (int)InputAction.Press)
             {
                 Position += cameraSpeed * Front;
+                flag = true;
             }
             if (GLFW.GetKey(window, Keys.S) == (int)InputAction.Press)
             {
                 Position -= cameraSpeed * Front;
+                flag = true;
             }
             if (GLFW.GetKey(window, Keys.A) == (int)InputAction.Press)
             {
                 Position -= Vector3.Normalize(Vector3.Cross(Front, WorldUp)) * cameraSpeed;
+                flag = true;
             }
             if (GLFW.GetKey(window, Keys.D) == (int)InputAction.Press)
             {
                 Position += Vector3.Normalize(Vector3.Cross(Front, WorldUp)) * cameraSpeed;
+                flag = true;
             }
             if (GLFW.GetKey(window, Keys.X) == (int)InputAction.Press)
             {
                 Position -= Vector3.Normalize(WorldUp) * cameraSpeed;
+                flag = true;
             }
             if (GLFW.GetKey(window, Keys.C) == (int)InputAction.Press)
             {
                 Position += Vector3.Normalize(WorldUp) * cameraSpeed;
+                flag = true;
             }
 
             var cameraRotate = 0.5f * deltaTime;
@@ -109,6 +172,7 @@ namespace OpenGL.Extension
                 var x = MathF.Cos(Yaw);
                 var z = MathF.Sin(Yaw);
                 Front = new Vector3(x, 0, z);
+                flag = true;
             }
             if (GLFW.GetKey(window, Keys.E) == (int)InputAction.Press)
             {
@@ -116,10 +180,51 @@ namespace OpenGL.Extension
                 var x = MathF.Cos(Yaw);
                 var z = MathF.Sin(Yaw);
                 Front = new Vector3(x, 0, z);
+                flag = true;
             }
-
-            Press?.Invoke(new WindowSender(GLFW, window));
+            return flag;
         }
+
+        float lastMouseX;
+        float lastMouseY;
+
+        public void Pan(float deltaX, float deltaY, Vector3 origin = default)
+        {
+            var distance = Vector3.Distance(Position, origin);
+            var fov = this.Zoom;
+            var h = 2 * distance * MathF.Tan(fov / 2.0f);
+            var c = h / Hight;
+            Position -= new Vector3(c * deltaX, -c * deltaY, 0);
+        }
+
+        public void Orbit(float deltaX, float deltaY, Vector3 origin = default)
+        {
+            var roy = Vector3.Dot(Front, Vector3.UnitZ) > 0 ? deltaY : -deltaY;
+
+            //Front
+
+            var ro = Matrix4x4.CreateRotationX(degToRad(roy / 4)) * Matrix4x4.CreateRotationY(degToRad(-deltaX / 4));
+            var mvZ = Vector3.Transform(Position, ro);
+
+            Position = mvZ;
+            //Yaw = -deltaX / 4;
+            //Pitch = deltaY / 4;
+
+            var f = origin - Position;
+            Front = Vector3.Normalize(f);
+        }
+        public void ZoomC(float deltaY, Vector3 origin = default)
+        {
+            //var direction = origin - Position;
+            //var distance = Vector3.Distance(Position, origin);
+            //var move = deltaY * MathF.Max(meter * 2, distance) / 20;
+            //Position = Position + direction * move;
+
+            //Console.WriteLine("zoom");
+            Position += deltaY * Front;
+        }
+
+        float meter = 1;
 
         public void ProcessKeyboard(float xoffset, float yoffset, bool constrainPitch = true)
         {
@@ -136,20 +241,9 @@ namespace OpenGL.Extension
             }
         }
 
-        public void ProcessMouseScroll(float yoffset)
+        public void ProcessMouseScroll(WindowHandle* window, double offsetX, double offsetY)
         {
-            if (Zoom < 0.1f)
-            {
-                Zoom = 0.1f;
-            }
-            else if (Zoom > MathF.PI / 4)
-            {
-                Zoom = MathF.PI / 4;
-            }
-            else
-            {
-                Zoom -= yoffset;
-            }
+            ZoomC((float)offsetY);
         }
     }
 }

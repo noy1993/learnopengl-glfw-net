@@ -1,9 +1,27 @@
-﻿
-using System.Numerics;
+﻿using System.Numerics;
 
-namespace OpenglTest
+namespace OpenGLTest
 {
-    public class CameraProperties
+    public class Camera
+    {
+        public Camera(CameraAttribute attribute, Vector3 position, Vector3 front, Vector3 up)
+        {
+            Attribute = attribute;
+            Position = position;
+            Front = front;
+            Up = up;
+        }
+
+        public Camera(CameraAttribute attribute) : this(attribute, new Vector3(0, 0, 0), new Vector3(0, 0, -1), new Vector3(0, 1, 0)) { }
+        public CameraAttribute Attribute { get; set; }
+        public Vector3 Position { get; set; }
+        public Vector3 Front { get; set; }
+        public Vector3 Up { get; set; }
+        public Matrix4x4 GetViewMatrix() => Matrix4x4.CreateLookAt(Position, Position + Front, Up);
+        public Matrix4x4 GetProjectionMatrix(float width, float height) => Attribute.GetProjectionMatrix(width, height);
+    }
+
+    public class CameraAttribute
     {
         private float _fov = 45;
         private float _near;

@@ -9,6 +9,8 @@ namespace Model
     {
         static readonly Glfw GLFW = Glfw.GetApi();
         internal static GL gl;
+
+        static OpenGL.Extension.Camera camera = new OpenGL.Extension.Camera();
         static unsafe void Main(string[] args)
         {
             GLFW.Init();
@@ -25,12 +27,14 @@ namespace Model
             gl = GL.GetApi(new GlfwContext(GLFW, window));
             gl.Enable(EnableCap.DepthTest);
 
-
-         
             Shader.sgl = gl;
             var shader = new Shader("./model_loading.vert", "./model_loading.frag");
-            var camera = new OpenGL.Extension.Camera();
+            
             shader.Use();
+
+            GLFW.SetMouseButtonCallback(window, camera.MouseInput);
+            GLFW.SetCursorPosCallback(window, camera.MouseMove);
+            GLFW.SetScrollCallback(window, camera.ProcessMouseScroll);
 
             var path = @"C:\Users\noy\Pictures\backpack\backpack.obj";
             var ourModel = new Model(gl, path);
@@ -50,6 +54,7 @@ namespace Model
             shader.SetLight("dirLight", light);
 
             Matrix4x4 model;
+            var vec3 = Vector3.UnitZ;
             while (!GLFW.WindowShouldClose(window))
             {
                 camera.ProcessInput(GLFW, window);
@@ -59,11 +64,13 @@ namespace Model
                 gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
                 shader.Use();
-                var projection = Matrix4x4.CreatePerspectiveFieldOfView(camera.Zoom, 800f / 600f, 0.1f, 100f);
+                var projection = Matrix4x4.CreatePerspectiveFieldOfView(camera.Zoom, camera.Width / camera.Hight, 0.1f, 100f);
                 shader.SetMatrix4x4("projection", projection);
                 var view = Matrix4x4.CreateLookAt(camera.Position, camera.Position + camera.Front, camera.WorldUp);
-                shader.SetMatrix4x4("view", camera.ViewMatrix);
+                var viewmat = camera.ViewMatrix;
+                shader.SetMatrix4x4("view", viewmat);
 
+                //Console.WriteLine(Vector3.Transform(vec3, viewmat));
                 model = Matrix4x4.CreateTranslation(new Vector3(0, 0, 0));
                 shader.SetMatrix4x4("model", model);
                 shader.SetVec3("viewPos", camera.Position);
@@ -74,9 +81,12 @@ namespace Model
                 GLFW.PollEvents();
             }
         }
+
         private static unsafe void framebuffer_size_callback(WindowHandle* window, int width, int height)
         {
             gl.Viewport(0, 0, (uint)width, (uint)height);
+            camera.Width = width;
+            camera.Hight = height;
         }
     }
 }

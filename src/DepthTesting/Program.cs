@@ -22,6 +22,7 @@ namespace DepthTesting
             }
             GLFW.MakeContextCurrent(window);
             GLFW.SetFramebufferSizeCallback(window, framebuffer_size_callback);
+            GLFW.WindowHint(WindowHintBool.DoubleBuffer, false);
 
             gl = GL.GetApi(new GlfwContext(GLFW, window));
             OpenGL.Extension.Shader.sgl = gl;
@@ -87,6 +88,7 @@ namespace DepthTesting
 
             var cubeVBO = gl.GenBuffer();
             gl.BindBuffer(BufferTargetARB.ArrayBuffer, cubeVBO);
+
             fixed (float* v = &cubeVertices[0])
             {
                 gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(sizeof(float) * cubeVertices.Length), v, BufferUsageARB.StaticDraw);
@@ -124,9 +126,9 @@ namespace DepthTesting
 
             gl.Enable(EnableCap.DepthTest);
             gl.DepthFunc(DepthFunction.Less);
-            //gl.DepthMask(false);
             var camera = new OpenGL.Extension.Camera();
             gl.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
             while (!GLFW.WindowShouldClose(window))
             {
                 camera.ProcessInput(GLFW, window);
@@ -142,7 +144,7 @@ namespace DepthTesting
 
                 gl.ActiveTexture(TextureUnit.Texture0);
                 gl.BindTexture(TextureTarget.Texture2D, cubeTexture);
-                
+
                 var projection = Matrix4x4.CreatePerspectiveFieldOfView(camera.Zoom, 800f / 600f, 0.1f, 100f);
                 shader.SetMatrix4x4("projection", projection);
                 var view = Matrix4x4.CreateLookAt(camera.Position, camera.Position + camera.Front, camera.WorldUp);
@@ -155,13 +157,11 @@ namespace DepthTesting
                 model = Matrix4x4.CreateTranslation(new Vector3(2.0f, 0.0f, 0.0f));
                 shader.SetMatrix4x4("model", model);
                 gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
-                
-                gl.DepthMask(false);
+
                 gl.BindVertexArray(planeVAO);
                 gl.BindTexture(TextureTarget.Texture2D, floorTexture);
                 shader.SetMatrix4x4("model", Matrix4x4.Identity);
                 gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
-                gl.DepthMask(true);
 
                 GLFW.SwapBuffers(window);
                 GLFW.PollEvents();
@@ -170,7 +170,7 @@ namespace DepthTesting
 
         // timing
         static float deltaTime = 0.0f;
-        static float lastFrame = 0.0f;
+        static float lastFrame  = 0.0f;
 
         private static uint loadTexture(string path, int index)
         {
