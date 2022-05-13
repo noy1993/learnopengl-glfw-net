@@ -10,7 +10,7 @@ namespace Model
         static readonly Glfw GLFW = Glfw.GetApi();
         internal static GL gl;
 
-        static OpenGL.Extension.Camera camera = new OpenGL.Extension.Camera();
+        static OpenGL.Extension.Camera2 camera = new OpenGL.Extension.Camera2();
         static unsafe void Main(string[] args)
         {
             GLFW.Init();
@@ -65,8 +65,7 @@ namespace Model
 
                 shader.Use();
                 var projection = Matrix4x4.CreatePerspectiveFieldOfView(camera.Zoom, camera.Width / camera.Hight, 0.1f, 100f);
-                shader.SetMatrix4x4("projection", projection);
-                var view = Matrix4x4.CreateLookAt(camera.Position, camera.Position + camera.Front, camera.WorldUp);
+                shader.SetMatrix4x4("projection", projection); 
                 var viewmat = camera.ViewMatrix;
                 shader.SetMatrix4x4("view", viewmat);
 
